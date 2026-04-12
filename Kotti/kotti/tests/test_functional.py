@@ -332,7 +332,7 @@ class TestBrowser:
         form = resp.forms["deform"]
         form["title"] = "Huge file"
         form["description"] = "A huge file"
-        form["upload"] = Upload("huge.txt", b"*" * (2 * 1024 * 1024), "text/plain")
+        form["upload"] = Upload("huge.txt", b"*" * (50 * 1024 * 1024), "text/plain")
         resp = form.submit("save")
         assert "There was a problem" in resp.text
         assert "Maximum file size" in resp.text

@@ -48,7 +48,12 @@ from datetime import datetime
 from depot.io.memory import MemoryFileStorage
 from mock import MagicMock
 from pytest import fixture
-from pytest import yield_fixture
+
+
+def yield_fixture(func=None, **kwargs):
+    """Compatibility wrapper for pytest.yield_fixture (deprecated in pytest 3.0+)."""
+    import pytest
+    return pytest.fixture(func, **kwargs) if func else pytest.fixture(**kwargs)
 
 from kotti import testing
 

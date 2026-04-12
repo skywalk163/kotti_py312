@@ -71,10 +71,8 @@ tests_require = [
     'mock',
     'Pillow',  # thumbnail filter in depot tween tests
     'pyquery',
-    'pytest>=6',
+    'pytest>=7.0.0',  # Python 3.12 requires pytest 7+
     'pytest-cov',
-    'pytest-flake8',
-    'pytest-virtualenv',
     'tox',
     'zope.testbrowser>=5.0.0',
     ]
