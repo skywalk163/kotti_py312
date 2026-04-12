@@ -333,8 +333,18 @@ class Node(Base, ContainerMixin, PersistentACLMixin, metaclass=NodeMeta):
         self.parent = value
 
     def __repr__(self) -> str:
+        # Safely access id to avoid DetachedInstanceError when object
+        # is not bound to a session (e.g., in pyramid_debugtoolbar)
+        try:
+            obj_id = self.id
+        except Exception:
+            obj_id = "?"
+        try:
+            path = resource_path(self)
+        except Exception:
+            path = "?"
         return "<{} {} at {}>".format(
-            self.__class__.__name__, self.id, resource_path(self)
+            self.__class__.__name__, obj_id, path
         )
 
     def __eq__(self, other: Any) -> bool:
