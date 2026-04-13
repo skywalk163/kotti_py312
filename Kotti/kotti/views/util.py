@@ -18,6 +18,7 @@ from pyramid.settings import asbool
 from sqlalchemy import and_
 from sqlalchemy import not_
 from sqlalchemy import or_
+from sqlalchemy.orm import with_polymorphic
 
 from kotti import DBSession
 from kotti import get_settings
@@ -424,7 +425,7 @@ class NodesTree:
 def nodes_tree(request, context=None, permission="view"):
     item_mapping = {}
     item_to_children = defaultdict(lambda: [])
-    for node in DBSession.query(Content).with_polymorphic(Content):
+    for node in DBSession.query(with_polymorphic(Content, '*')):
         item_mapping[node.id] = node
         if request.has_permission(permission, node):
             item_to_children[node.parent_id].append(node)

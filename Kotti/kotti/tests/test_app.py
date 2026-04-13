@@ -216,10 +216,7 @@ class TestApp:
                     main({}, **settings)
 
         res = db_session.execute(
-            select(
-                columns=[column("version_num")],
-                from_obj=[table("kotti_alembic_version")],
-            )
+            select(column("version_num")).select_from(table("kotti_alembic_version"))
         )
         assert tuple(res)  # a version_num should exist
 

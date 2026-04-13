@@ -48,15 +48,17 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.ext.orderinglist import OrderingList
 from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.orm import backref
+from sqlalchemy.orm import lazyload
 from sqlalchemy.orm import object_mapper
-from sqlalchemy.orm import relation
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import with_polymorphic
 from sqlalchemy.orm.attributes import Event
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.orm.scoping import scoped_session
 from sqlalchemy.sql import and_
 from sqlalchemy.sql import select
 from sqlalchemy.util import classproperty
-from sqlalchemy.util.langhelpers import _symbol
+from sqlalchemy.util.langhelpers import symbol as _symbol
 from transaction import commit
 from zope.interface import implementer
 
@@ -167,7 +169,7 @@ class ContainerMixin(MutableMapping):
             alias, old_alias = nodes.alias(), alias
             conditions.append(alias.c.parent_id == old_alias.c.id)
             conditions.append(alias.c.name == name)
-        expr = select([alias.c.id], and_(*conditions))
+        expr = select(alias.c.id).where(and_(*conditions))
         row = db_session.execute(expr).fetchone()
         if row is None:
             raise KeyError(path)
@@ -284,7 +286,7 @@ class Node(Base, ContainerMixin, PersistentACLMixin, metaclass=NodeMeta):
     #: (:class:`sqlalchemy.types.Unicode`).
     path = Column(Unicode(2000), index=True)
 
-    parent = relation(
+    parent = relationship(
         "Node",
         remote_side=[id],
         backref=backref(
@@ -295,7 +297,7 @@ class Node(Base, ContainerMixin, PersistentACLMixin, metaclass=NodeMeta):
         ),
     )
 
-    local_groups = relation(
+    local_groups = relationship(
         LocalGroup, backref=backref("node"), cascade="all", lazy="joined"
     )
 
@@ -543,7 +545,7 @@ class TagsToContents(Base):
     #: to :class:`~kotti.resources.Tag` instances to allow easy access to all
     #: content tagged with that tag.
     #: (:func:`sqlalchemy.orm.relationship`)
-    tag = relation(Tag, backref=backref("content_tags", cascade="all"), lazy="joined")
+    tag = relationship(Tag, backref=backref("content_tags", cascade="all"), lazy="joined")
     #: Ordering position of the tag
     #: :class:`sqlalchemy.types.Integer`
     position = Column(Integer, nullable=False)
@@ -638,7 +640,7 @@ class Content(Node):
     #: Shall the content be visible in the navigation?
     #: (:class:`sqlalchemy.types.Boolean`)
     in_navigation = Column(Boolean())
-    _tags = relation(
+    _tags = relationship(
         TagsToContents,
         backref=backref("item"),
         order_by=[TagsToContents.position],
@@ -746,7 +748,7 @@ class SaveDataMixin:
     #: Filedepot mapped blob
     #: (:class:`depot.fileds.sqlalchemy.UploadedFileField`)
     @declared_attr
-    def data(cls) -> Column:
+    def data(cls):
         return cls.__table__.c.get("data", Column(UploadedFileField(cls.data_filters)))
 
     data_filters = ()
@@ -893,13 +895,11 @@ class DefaultRootCache:
         :rtype: int
         """
 
-        query = bakery(
-            lambda session: session.query(Node)
-            .with_polymorphic(Node)
-            .add_columns(Node.id)
-            .enable_eagerloads(False)
-            .filter(Node.parent_id == None)
-        )
+        def _root_id_query(session):
+            node_poly = with_polymorphic(Node, '*')
+            return session.query(node_poly).add_columns(node_poly.id).options(lazyload('*')).filter(node_poly.parent_id == None)
+
+        query = bakery(_root_id_query)
 
         return query(DBSession()).one().id
 
@@ -911,12 +911,10 @@ class DefaultRootCache:
         """
 
         if self._root is None or inspect(self._root).detached:
+            node_poly = with_polymorphic(Node, '*')
             self._root = (
-                DBSession.query(Node)
-                .with_polymorphic(Node)
-                .enable_eagerloads(False)
-                .enable_eagerloads("local_groups")
-                .filter(Node.id == self.root_id)
+                DBSession.query(node_poly)
+                .filter(node_poly.id == self.root_id)
                 .one()
             )
 

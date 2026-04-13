@@ -14,7 +14,9 @@ from sqlalchemy.types import Text
 from sqlalchemy.types import TypeDecorator
 
 bakery = baked.bakery()
-baked.bake_lazy_loaders()
+# bake_lazy_loaders was removed in SQLAlchemy 2.0
+if hasattr(baked, 'bake_lazy_loaders'):
+    baked.bake_lazy_loaders()
 
 
 def dump_default(obj):

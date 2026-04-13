@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="request.macros['master']">
+<head>
+    <title tal:content="title">AI Chat</title>
+    <style>
+        .g4f-chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .g4f-chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        .g4f-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .g4f-message.user {
+            background: #e3f2fd;
+            margin-left: 20%;
+        }
+        .g4f-message.assistant {
+            background: #fff;
+            margin-right: 20%;
+            border: 1px solid #eee;
+        }
+        .g4f-message pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .g4f-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        .g4f-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .g4f-send-btn {
+            padding: 10px 20px;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .g4f-send-btn:hover {
+            background: #1565c0;
+        }
+        .g4f-send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .g4f-error {
+            color: red;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .g4f-model-info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="g4f-chat-container">
+        <h1 tal:content="title">AI Chat</h1>
+        
+        <div class="g4f-model-info">
+            Model: <span tal:content="model">gpt-4</span>
+        </div>
+        
+        <div id="messages" class="g4f-chat-messages"></div>
+        
+        <div id="error-container" class="g4f-error" style="display: none;"></div>
+        
+        <div class="g4f-input-container">
+            <input type="text" id="message-input" class="g4f-input" 
+                   placeholder="Type your message..." 
+                   onkeypress="if(event.key === 'Enter') sendMessage();">
+            <button id="send-btn" class="g4f-send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let conversationId = null;
+        
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'g4f-message ' + role;
+            
+            const pre = document.createElement('pre');
+            pre.textContent = content;
+            messageDiv.appendChild(pre);
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error-container');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function setSending(sending) {
+            const btn = document.getElementById('send-btn');
+            const input = document.getElementById('message-input');
+            btn.disabled = sending;
+            input.disabled = sending;
+            btn.textContent = sending ? 'Sending...' : 'Send';
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('message-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to UI
+            addMessage('user', message);
+            input.value = '';
+            
+            setSending(true);
+            
+            try {
+                const response = await fetch('/@@g4f-api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_id: conversationId,
+                    }),
+                });
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    showError(data.error);
+                    addMessage('assistant', 'Error: ' + data.error);
+                } else {
+                    conversationId = data.conversation_id;
+                    addMessage('assistant', data.response);
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+                addMessage('assistant', 'Error: ' + error.message);
+            }
+            
+            setSending(false);
+            input.focus();
+        }
+        
+        // Focus input on load
+        document.getElementById('message-input').focus();
+    </script>
+</body>
+</html>

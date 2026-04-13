@@ -42,6 +42,8 @@ from pyramid.traversal import empty
 from pyramid.traversal import slash
 from pyramid.traversal import split_path_info
 from sqlalchemy import or_
+from sqlalchemy.orm import lazyload
+from sqlalchemy.orm import with_polymorphic
 from zope.interface import implementer
 
 from kotti import DBSession
@@ -172,8 +174,7 @@ class NodeTreeTraverser(ResourceTreeTraverser):
         ]
         nodes = (
             DBSession()
-            .query(Node)
-            .with_polymorphic(Node)
+            .query(with_polymorphic(Node, '*'))
             .order_by(Node.path)
             .filter(or_(*conditions))
             .all()
@@ -211,7 +212,7 @@ class NodeTreeTraverser(ResourceTreeTraverser):
                 Node.id,
                 # array([concat('', Node.name)]).label('path')) \
                 concat('', Node.name).label('path')) \
-            .enable_eagerloads(False) \
+            .options(lazyload('*')) \
             .filter(Node.parent_id == None) \
             .cte(name="n1", recursive=True)
         parent = aliased(cte, name='parent')
@@ -220,7 +221,7 @@ class NodeTreeTraverser(ResourceTreeTraverser):
                 child.id,
                 # (parent.c.path + array([concat('', child.name)])).label('path')) \
                 concat(parent.c.path, '/', child.name).label('path')) \
-            .enable_eagerloads(False) \
+            .options(lazyload('*')) \
             .filter(child.parent_id == parent.c.id)
         cte = cte.union_all(inner)
         conditions = [

@@ -34,7 +34,7 @@ from sqlalchemy import event
 from sqlalchemy.engine.base import Connection
 from sqlalchemy.orm import deferred
 from sqlalchemy.orm.attributes import Event
-from sqlalchemy.util.langhelpers import _symbol
+from sqlalchemy.util.langhelpers import symbol as _symbol
 
 from kotti import Base
 from kotti import DBSession
