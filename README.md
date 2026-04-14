@@ -40,6 +40,21 @@ pip install -e ".[testing]"
 cd ../kotti_image
 pip install -e ".[testing]"
 ```
+### 依赖库其它问题
+
+如果有报错No module named 'pkg_resources'，那么锁定setuptools库版本
+
+```bash
+pip install "setuptools==80.10.2"
+```
+
+如果有报错缺少几个库,如pyramid_debugtoolbar，可以手工安装
+
+```bash
+# 手工安装几个缺失的库
+pip install pyramid_debugtoolbar
+```
+
 
 ## 运行
 

@@ -169,6 +169,7 @@ logs/
 *.tmp
 *.temp
 *.bak
+tmp/
 
 # Uploaded files (development)
 uploads/
