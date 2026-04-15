@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      metal:use-macro="api.macro('kotti:templates/view/master.pt')">
+
+  <div metal:fill-slot="content" class="g4f-chat-view content">
+    <h1>${context.title}</h1>
+    
+    <p tal:condition="context.description" class="lead">
+      ${context.description}
+    </p>
+    
+    <div class="g4f-chat-container">
+        <div id="chat-messages" class="chat-messages">
+            <div class="welcome-message" tal:content="welcome_message">Welcome!</div>
+        </div>
+        
+        <div class="chat-input-container">
+            <textarea id="chat-input" placeholder="Type your message..." rows="3" maxlength="10000"></textarea>
+            <button id="send-button" class="btn btn-primary">Send</button>
+        </div>
+        <p class="text-muted small">Maximum message length: 10,000 characters</p>
+    </div>
+    
+    <style>
+        .g4f-chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .chat-messages {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            background: #f9f9f9;
+        }
+        .welcome-message {
+            color: #666;
+            font-style: italic;
+            padding: 10px;
+            text-align: center;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .message.user {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+        .message.assistant {
+            background: #e9ecef;
+            color: #333;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+        #chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: none;
+        }
+        #send-button {
+            padding: 10px 25px;
+        }
+        #send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+    
+    <script>
+        (function() {
+            'use strict';
+            
+            const chatMessages = document.getElementById('chat-messages');
+            const chatInput = document.getElementById('chat-input');
+            const sendButton = document.getElementById('send-button');
+            
+            // Build API endpoint safely
+            const apiEndpoint = (function() {
+                var url = window.location.href;
+                // Remove trailing slash
+                if (url.charAt(url.length - 1) === '/') {
+                    url = url.slice(0, -1);
+                }
+                return url + '/api';
+            })();
+            
+            let history = [];
+            let isSending = false;
+            
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            function addMessage(content, role) {
+                const div = document.createElement('div');
+                div.className = 'message ' + (role === 'error' ? 'error' : role);
+                div.textContent = content;
+                chatMessages.appendChild(div);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+            
+            function setSendingState(sending) {
+                isSending = sending;
+                sendButton.disabled = sending;
+                sendButton.textContent = sending ? 'Sending...' : 'Send';
+            }
+            
+            async function sendMessage() {
+                if (isSending) return;
+                
+                const message = chatInput.value.trim();
+                if (!message) return;
+                
+                // Validate message length client-side
+                if (message.length > 10000) {
+                    addMessage('Message is too long (max 10,000 characters)', 'error');
+                    return;
+                }
+                
+                addMessage(message, 'user');
+                chatInput.value = '';
+                setSendingState(true);
+                
+                try {
+                    const response = await fetch(apiEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            history: history
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Server error: ' + response.status);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        addMessage(data.error, 'error');
+                    } else if (data.response) {
+                        addMessage(data.response, 'assistant');
+                        history.push({role: 'user', content: message});
+                        history.push({role: 'assistant', content: data.response});
+                    } else {
+                        addMessage('Unexpected response from server', 'error');
+                    }
+                } catch (error) {
+                    console.error('Chat error:', error);
+                    addMessage('Connection error. Please try again.', 'error');
+                } finally {
+                    setSendingState(false);
+                }
+            }
+            
+            sendButton.addEventListener('click', sendMessage);
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        })();
+    </script>
+  </div>
+
+</html>

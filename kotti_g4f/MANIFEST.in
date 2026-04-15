@@ -1,0 +1,9 @@
+include *.rst
+include *.txt
+include *.ini
+include *.cfg
+recursive-include kotti_g4f *.pt
+recursive-include kotti_g4f *.py
+recursive-include kotti_g4f *.pot
+recursive-include kotti_g4f/locale *
+recursive-include kotti_g4f/alembic *

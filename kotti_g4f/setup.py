@@ -15,23 +15,24 @@ except IOError:
 
 version = "0.1.0"
 
+# Lock dependency versions for security
 install_requires = [
-    "Kotti>=2.0.0",
-    "g4f>=0.3.0",
+    "Kotti>=2.0.0,<3.0.0",
+    "g4f>=0.3.0,<1.0.0",
 ]
 
 tests_require = [
-    "WebTest",
-    "mock",
-    "pytest>=7.0.0",
-    "pytest-cov",
-    "zope.testbrowser>=5.0.0",
+    "WebTest>=3.0.0",
+    "mock>=5.0.0",
+    "pytest>=7.0.0,<9.0.0",
+    "pytest-cov>=4.0.0",
+    "zope.testbrowser>=5.0.0,<7.0.0",
 ]
 
 setup(
     name="kotti_g4f",
     version=version,
-    description="GPT4Free integration for Kotti CMS",
+    description="GPT4Free integration for Kotti CMS - Add AI chat content type",
     long_description="\n\n".join([README, CHANGES]),
     long_description_content_type="text/x-rst",
     classifiers=[
@@ -51,7 +52,7 @@ setup(
     author="Kotti Developers",
     author_email="kotti@googlegroups.com",
     url="https://github.com/Kotti/kotti_g4f",
-    keywords="kotti gpt4free ai chat gpt",
+    keywords="kotti gpt4free ai chat gpt llm",
     license="MIT",
     packages=find_packages(),
     include_package_data=True,

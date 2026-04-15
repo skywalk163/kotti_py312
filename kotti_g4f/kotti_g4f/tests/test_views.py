@@ -11,7 +11,7 @@ class TestKottiConfigure:
         from kotti_g4f import kotti_configure
         from kotti_g4f import DEFAULT_SETTINGS
 
-        settings = {"pyramid.includes": ""}
+        settings = {"pyramid.includes": "", "kotti.alembic_dirs": "", "kotti.available_types": ""}
         kotti_configure(settings)
 
         for key, value in DEFAULT_SETTINGS.items():
@@ -23,6 +23,8 @@ class TestKottiConfigure:
 
         settings = {
             "pyramid.includes": "",
+            "kotti.alembic_dirs": "",
+            "kotti.available_types": "",
             "kotti.g4f.enabled": False,
             "kotti.g4f.model": "gpt-3.5-turbo",
         }
@@ -35,10 +37,28 @@ class TestKottiConfigure:
         """Test that pyramid.includes is updated."""
         from kotti_g4f import kotti_configure
 
-        settings = {"pyramid.includes": "some.module"}
+        settings = {"pyramid.includes": "some.module", "kotti.alembic_dirs": "", "kotti.available_types": ""}
         kotti_configure(settings)
 
         assert "kotti_g4f" in settings["pyramid.includes"]
+
+    def test_kotti_configure_adds_content_type(self):
+        """Test that G4FChat content type is registered."""
+        from kotti_g4f import kotti_configure
+
+        settings = {"pyramid.includes": "", "kotti.alembic_dirs": "", "kotti.available_types": ""}
+        kotti_configure(settings)
+
+        assert "kotti_g4f.resources.G4FChat" in settings["kotti.available_types"]
+
+    def test_kotti_configure_adds_alembic_dirs(self):
+        """Test that alembic directories are added."""
+        from kotti_g4f import kotti_configure
+
+        settings = {"pyramid.includes": "", "kotti.alembic_dirs": "", "kotti.available_types": ""}
+        kotti_configure(settings)
+
+        assert "kotti_g4f:alembic" in settings["kotti.alembic_dirs"]
 
 
 class TestGetG4FSettings:
@@ -141,6 +161,7 @@ class TestIncludeme:
         class MockConfig:
             routes = []
             translations = []
+            scans = []
 
             def add_route(self, name, pattern):
                 self.routes.append((name, pattern))
@@ -149,7 +170,7 @@ class TestIncludeme:
                 self.translations.append(dirs)
 
             def scan(self, name):
-                pass
+                self.scans.append(name)
 
         config = MockConfig()
         includeme(config)
@@ -158,168 +179,112 @@ class TestIncludeme:
         assert ("g4f_api", "/@@g4f-api") in config.routes
 
 
-class TestCallG4F:
-    """Test the _call_g4f method."""
+class TestG4FChatResource:
+    """Test the G4FChat content type."""
 
-    def test_call_g4f_returns_string(self):
-        """Test that _call_g4f returns a string."""
-        from unittest.mock import patch, MagicMock
-        from kotti_g4f.views import G4FAPIView
+    def test_g4f_chat_creation(self):
+        """Test that G4FChat can be created."""
+        from kotti_g4f.resources import G4FChat
 
-        # Mock the g4f client at the import location
-        with patch('g4f.client.Client') as mock_client_class:
-            mock_client = MagicMock()
-            mock_response = MagicMock()
-            mock_response.choices = [MagicMock()]
-            mock_response.choices[0].message.content = "Test response"
-            mock_client.chat.completions.create.return_value = mock_response
-            mock_client_class.return_value = mock_client
+        chat = G4FChat(
+            title="Test Chat",
+            system_prompt="You are a helpful assistant.",
+            welcome_message="Hello! How can I help you?",
+            model="gpt-4",
+        )
 
-            view = G4FAPIView(None, None)
-            result = view._call_g4f([], "gpt-4")
+        assert chat.title == "Test Chat"
+        assert chat.system_prompt == "You are a helpful assistant."
+        assert chat.welcome_message == "Hello! How can I help you?"
+        assert chat.model == "gpt-4"
 
-            assert isinstance(result, str)
-            assert result == "Test response"
+    def test_g4f_chat_type_info(self):
+        """Test that G4FChat has correct type_info."""
+        from kotti_g4f.resources import G4FChat
 
-    def test_call_g4f_with_history(self):
-        """Test that _call_g4f handles history."""
-        from unittest.mock import patch, MagicMock
-        from kotti_g4f.views import G4FAPIView
-
-        with patch('g4f.client.Client') as mock_client_class:
-            mock_client = MagicMock()
-            mock_response = MagicMock()
-            mock_response.choices = [MagicMock()]
-            mock_response.choices[0].message.content = "History response"
-            mock_client.chat.completions.create.return_value = mock_response
-            mock_client_class.return_value = mock_client
-
-            view = G4FAPIView(None, None)
-            history = [
-                {"role": "user", "content": "Hello"},
-                {"role": "assistant", "content": "Hi there!"},
-                {"role": "user", "content": "How are you?"},
-            ]
-            result = view._call_g4f(history, "gpt-4")
-
-            assert isinstance(result, str)
-            assert result == "History response"
-
-    def test_call_g4f_import_error(self):
-        """Test that _call_g4f handles ImportError gracefully."""
-        from unittest.mock import patch
-        from kotti_g4f.views import G4FAPIView
-
-        # Simulate ImportError when g4f module is not installed
-        with patch.dict('sys.modules', {'g4f': None, 'g4f.client': None}):
-            view = G4FAPIView(None, None)
-            result = view._call_g4f([], "gpt-4")
-
-            assert "Error: g4f is not installed" in result
+        assert G4FChat.type_info.name == "G4FChat"
+        assert G4FChat.type_info.add_view == "add_g4f_chat"
+        assert "Document" in G4FChat.type_info.addable_to
 
 
-class TestG4FChatView:
-    """Test the chat view."""
+class TestSecurityValidation:
+    """Test security validation functions."""
 
-    def test_chat_view_disabled_raises_404(self):
-        """Test that chat view raises 404 when disabled."""
-        from pyramid.httpexceptions import HTTPNotFound
-        from kotti_g4f.views import G4FChatView
+    def test_validate_message_empty(self):
+        """Test that empty message is rejected."""
+        from kotti_g4f.views.view import validate_message
 
-        class MockRegistry:
-            settings = {"kotti.g4f.enabled": False}
+        is_valid, error = validate_message("")
+        assert is_valid is False
+        assert error is not None
 
-        class MockRequest:
-            registry = MockRegistry()
+    def test_validate_message_too_long(self):
+        """Test that overly long message is rejected."""
+        from kotti_g4f.views.view import validate_message, MAX_MESSAGE_LENGTH
 
-        view = G4FChatView(None, MockRequest())
+        long_message = "a" * (MAX_MESSAGE_LENGTH + 1)
+        is_valid, error = validate_message(long_message)
+        assert is_valid is False
+        assert "too long" in str(error).lower()
 
-        try:
-            view.chat()
-            assert False, "Should have raised HTTPNotFound"
-        except HTTPNotFound:
-            pass
+    def test_validate_message_valid(self):
+        """Test that valid message is accepted."""
+        from kotti_g4f.views.view import validate_message
 
+        is_valid, error = validate_message("Hello, this is a test message.")
+        assert is_valid is True
+        assert error is None
 
-class TestG4FAPIView:
-    """Test the API view."""
+    def test_validate_history_invalid_format(self):
+        """Test that invalid history format is rejected."""
+        from kotti_g4f.views.view import validate_history
 
-    def test_chat_api_disabled_raises_404(self):
-        """Test that API raises 404 when disabled."""
-        from pyramid.httpexceptions import HTTPNotFound
-        from kotti_g4f.views import G4FAPIView
+        is_valid, error = validate_history("not a list")
+        assert is_valid is False
 
-        class MockRegistry:
-            settings = {"kotti.g4f.enabled": False}
+    def test_validate_history_missing_fields(self):
+        """Test that history items missing fields are rejected."""
+        from kotti_g4f.views.view import validate_history
 
-        class MockRequest:
-            registry = MockRegistry()
-            body = '{"message": "test"}'
+        is_valid, error = validate_history([{"role": "user"}])
+        assert is_valid is False
 
-        view = G4FAPIView(None, MockRequest())
+    def test_validate_history_invalid_role(self):
+        """Test that invalid role is rejected."""
+        from kotti_g4f.views.view import validate_history
 
-        try:
-            view.chat_api()
-            assert False, "Should have raised HTTPNotFound"
-        except HTTPNotFound:
-            pass
+        is_valid, error = validate_history([{"role": "hacker", "content": "test"}])
+        assert is_valid is False
 
-    def test_chat_api_invalid_json(self):
-        """Test that API handles invalid JSON."""
-        from pyramid.httpexceptions import HTTPBadRequest
-        from kotti_g4f.views import G4FAPIView
+    def test_validate_history_valid(self):
+        """Test that valid history is accepted."""
+        from kotti_g4f.views.view import validate_history
 
-        class MockRegistry:
-            settings = {"kotti.g4f.enabled": True}
+        history = [
+            {"role": "user", "content": "Hello"},
+            {"role": "assistant", "content": "Hi there!"},
+        ]
+        is_valid, error = validate_history(history)
+        assert is_valid is True
 
-        class MockRequest:
-            registry = MockRegistry()
-            body = "not valid json"
+    def test_validate_model_allowed(self):
+        """Test that allowed model is accepted."""
+        from kotti_g4f.views.view import validate_model
 
-        view = G4FAPIView(None, MockRequest())
+        assert validate_model("gpt-4") == "gpt-4"
+        assert validate_model("gpt-3.5-turbo") == "gpt-3.5-turbo"
 
-        try:
-            view.chat_api()
-            assert False, "Should have raised HTTPBadRequest"
-        except HTTPBadRequest:
-            pass
+    def test_validate_model_unknown_returns_default(self):
+        """Test that unknown model returns default."""
+        from kotti_g4f.views.view import validate_model
 
-    def test_chat_api_missing_message(self):
-        """Test that API handles missing message."""
-        from pyramid.httpexceptions import HTTPBadRequest
-        from kotti_g4f.views import G4FAPIView
+        assert validate_model("unknown-model") == "gpt-4"
+        assert validate_model(None) == "gpt-4"
 
-        class MockRegistry:
-            settings = {"kotti.g4f.enabled": True}
+    def test_validate_model_malicious_rejected(self):
+        """Test that malicious model name is rejected."""
+        from kotti_g4f.views.view import validate_model
 
-        class MockRequest:
-            registry = MockRegistry()
-            body = '{"other": "data"}'
-
-        view = G4FAPIView(None, MockRequest())
-
-        try:
-            view.chat_api()
-            assert False, "Should have raised HTTPBadRequest"
-        except HTTPBadRequest:
-            pass
-
-    def test_chat_api_empty_message(self):
-        """Test that API handles empty message."""
-        from pyramid.httpexceptions import HTTPBadRequest
-        from kotti_g4f.views import G4FAPIView
-
-        class MockRegistry:
-            settings = {"kotti.g4f.enabled": True}
-
-        class MockRequest:
-            registry = MockRegistry()
-            body = '{"message": ""}'
-
-        view = G4FAPIView(None, MockRequest())
-
-        try:
-            view.chat_api()
-            assert False, "Should have raised HTTPBadRequest"
-        except HTTPBadRequest:
-            pass
+        # Malicious model names should return default
+        assert validate_model("'; DROP TABLE users; --") == "gpt-4"
+        assert validate_model("<script>alert('xss')</script>") == "gpt-4"

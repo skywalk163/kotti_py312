@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 kotti_g4f - GPT4Free integration for Kotti CMS
 """
@@ -33,6 +34,12 @@ def kotti_configure(settings):
     # Add pyramid includes - this will call includeme()
     settings["pyramid.includes"] += " kotti_g4f"
 
+    # Add alembic migration directories
+    settings["kotti.alembic_dirs"] += " kotti_g4f:alembic"
+
+    # Register the G4FChat content type
+    settings["kotti.available_types"] += " kotti_g4f.resources.G4FChat"
+
 
 def includeme(config):
     """Pyramid includeme hook.
@@ -43,12 +50,12 @@ def includeme(config):
     # Add translation directories
     config.add_translation_dirs("kotti_g4f:locale")
 
-    # Add routes
+    # Add routes for standalone chat pages
     config.add_route("g4f_chat", "/@@g4f-chat")
     config.add_route("g4f_api", "/@@g4f-api")
 
-    # Scan for views
-    config.scan(__name__)
+    # Scan for views (scans kotti_g4f and all submodules)
+    config.scan("kotti_g4f.views")
 
 
 def get_g4f_settings(request):
