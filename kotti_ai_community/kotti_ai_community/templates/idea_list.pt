@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="api.macro('kotti:templates/master.pt')">
+<head>
+    <title metal:fill-slot="title">点子广场 - AI共创</title>
+</head>
+<body>
+    <div metal:fill-slot="content" class="idea-list-page">
+        <div class="page-header">
+            <h1>点子广场</h1>
+            <p class="lead">分享你的 AI 点子，找到志同道合的伙伴</p>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filters well">
+            <form method="GET" class="form-inline">
+                <div class="row">
+                    <div class="col-md-3">
+                        <select name="category" class="form-control">
+                            <option value="">所有分类</option>
+                            <tal:loop tal:repeat="cat categories">
+                                <option value="${cat}"
+                                        tal:attributes="selected 'selected' if filters['category'] == cat else None">
+                                    ${categories[cat]}
+                                </option>
+                            </tal:loop>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="status" class="form-control">
+                            <option value="">所有状态</option>
+                            <tal:loop tal:repeat="st statuses">
+                                <option value="${st}"
+                                        tal:attributes="selected 'selected' if filters['status'] == st else None">
+                                    ${statuses[st]}
+                                </option>
+                            </tal:loop>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="difficulty" class="form-control">
+                            <option value="">所有难度</option>
+                            <tal:loop tal:repeat="diff difficulties">
+                                <option value="${diff}"
+                                        tal:attributes="selected 'selected' if filters['difficulty'] == diff else None">
+                                    ${difficulties[diff]}
+                                </option>
+                            </tal:loop>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="search" class="form-control"
+                               placeholder="搜索点子..." value="${filters['search']}">
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">筛选</button>
+                        <a href="${request.url}" class="btn btn-default">重置</a>
+                        <a href="${request.application_url}/add_idea" class="btn btn-success pull-right">
+                            发布点子
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 点子列表 -->
+        <div class="ideas-list">
+            <tal:repeat tal:repeat="idea ideas">
+                <div class="idea-card panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <a href="${request.resource_url(idea)}">${idea.title}</a>
+                        </h3>
+                        <div class="idea-meta">
+                            <span class="label label-info">${idea.get_category_display()}</span>
+                            <span class="label label-${'success' if idea.status == 'recruiting' else 'default'}">
+                                ${idea.get_status_display()}
+                            </span>
+                            <span class="label label-warning">${idea.get_difficulty_display()}</span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <p>${idea.description[:200]}...</p>
+                        <div class="idea-tags">
+                            <tal:repeat tal:repeat="tag idea.tags">
+                                <span class="tag label label-default">${tag}</span>
+                            </tal:repeat>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="stat"><i class="glyphicon glyphicon-eye-open"></i> ${idea.views_count}</span>
+                        <span class="stat"><i class="glyphicon glyphicon-heart"></i> ${idea.likes_count}</span>
+                        <span class="stat"><i class="glyphicon glyphicon-user"></i> ${idea.followers_count}</span>
+                        <span class="pull-right text-muted">
+                            ${idea.creator.name} · ${idea.creation_date.strftime('%Y-%m-%d')}
+                        </span>
+                    </div>
+                </div>
+            </tal:repeat>
+
+            <div tal:condition="not ideas" class="alert alert-info">
+                暂无点子，<a href="${request.application_url}/add_idea">发布第一个点子</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

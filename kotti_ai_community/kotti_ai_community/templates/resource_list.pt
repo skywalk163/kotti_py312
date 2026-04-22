@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="api.macro('kotti:templates/master.pt')">
+<head>
+    <title metal:fill-slot="title">资源库 - AI共创</title>
+</head>
+<body>
+    <div metal:fill-slot="content" class="resource-list-page">
+        <div class="page-header">
+            <h1>资源库</h1>
+            <p class="lead">分享和发现 AI 资源，助力点子落地</p>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filters well">
+            <form method="GET" class="form-inline">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select name="category" class="form-control">
+                            <option value="">所有分类</option>
+                            <tal:loop tal:repeat="cat categories">
+                                <option value="${cat}"
+                                        tal:attributes="selected 'selected' if filters['category'] == cat else None">
+                                    ${categories[cat]}
+                                </option>
+                            </tal:loop>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="access_type" class="form-control">
+                            <option value="">所有访问方式</option>
+                            <tal:loop tal:repeat="acc access_types">
+                                <option value="${acc}"
+                                        tal:attributes="selected 'selected' if filters['access_type'] == acc else None">
+                                    ${access_types[acc]}
+                                </option>
+                            </tal:loop>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" name="search" class="form-control"
+                               placeholder="搜索资源..." value="${filters['search']}">
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 10px;">
+                    <div class="col-md-12">
+                        <button type="submit" class="btn btn-primary">筛选</button>
+                        <a href="${request.url}" class="btn btn-default">重置</a>
+                        <a href="${request.application_url}/add_resource_item" class="btn btn-success pull-right">
+                            分享资源
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 资源列表 -->
+        <div class="resources-list">
+            <tal:repeat tal:repeat="resource resources">
+                <div class="resource-card panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <a href="${request.resource_url(resource)}">${resource.title}</a>
+                        </h3>
+                        <div class="resource-meta">
+                            <span class="label label-primary">${resource.get_category_display()}</span>
+                            <span class="label label-${'success' if resource.access_type == 'free' else 'warning'}">
+                                ${resource.get_access_type_display()}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <p>${resource.description[:200]}...</p>
+                        <div class="resource-tags">
+                            <tal:repeat tal:repeat="tag resource.tags">
+                                <span class="tag label label-default">${tag}</span>
+                            </tal:repeat>
+                        </div>
+                    </div>
+                    <div class="panel-footer">
+                        <span class="stat"><i class="glyphicon glyphicon-eye-open"></i> ${resource.views_count}</span>
+                        <span class="stat"><i class="glyphicon glyphicon-heart"></i> ${resource.likes_count}</span>
+                        <span class="stat"><i class="glyphicon glyphicon-link"></i> ${resource.references_count}</span>
+                        <span class="pull-right text-muted">
+                            ${resource.creator.name} · ${resource.creation_date.strftime('%Y-%m-%d')}
+                        </span>
+                    </div>
+                </div>
+            </tal:repeat>
+
+            <div tal:condition="not resources" class="alert alert-info">
+                暂无资源，<a href="${request.application_url}/add_resource_item">分享第一个资源</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

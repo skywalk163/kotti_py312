@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="api.macro('kotti:templates/master.pt')">
+<head>
+    <title metal:fill-slot="title">AI共创 - 点子共享，实践落地</title>
+</head>
+<body>
+    <div metal:fill-slot="content" class="home-page">
+        <!-- Hero 区域 -->
+        <div class="hero-section">
+            <div class="container">
+                <h1 class="hero-title">AI共创社区</h1>
+                <p class="hero-subtitle">点子共享，实践落地</p>
+                <p class="hero-description">
+                    在这里分享你的 AI 点子，找到志同道合的伙伴<br>
+                    发现优质资源，让创意变成现实
+                </p>
+                <div class="hero-actions">
+                    <a href="${request.application_url}/ideas" class="btn btn-primary btn-lg">
+                        浏览点子
+                    </a>
+                    <a href="${request.application_url}/add_idea" class="btn btn-success btn-lg">
+                        发布点子
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计数据 -->
+        <div class="stats-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 stat-item">
+                        <h2>${stats['total_ideas']}</h2>
+                        <p>点子数量</p>
+                    </div>
+                    <div class="col-md-4 stat-item">
+                        <h2>${stats['total_resources']}</h2>
+                        <p>资源数量</p>
+                    </div>
+                    <div class="col-md-4 stat-item">
+                        <h2>∞</h2>
+                        <p>无限可能</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-section">
+            <div class="container">
+                <div class="row">
+                    <!-- 最新点子 -->
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    最新点子
+                                    <a href="${request.application_url}/ideas" class="pull-right">查看全部</a>
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <ul class="list-group">
+                                    <tal:repeat tal:repeat="idea latest_ideas">
+                                        <li class="list-group-item">
+                                            <a href="${request.resource_url(idea)}">${idea.title}</a>
+                                            <span class="pull-right text-muted">
+                                                ${idea.get_category_display()}
+                                            </span>
+                                        </li>
+                                    </tal:repeat>
+                                </ul>
+                                <div tal:condition="not latest_ideas" class="text-center text-muted">
+                                    暂无点子，<a href="${request.application_url}/add_idea">发布第一个</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最新资源 -->
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">
+                                    最新资源
+                                    <a href="${request.application_url}/resources" class="pull-right">查看全部</a>
+                                </h3>
+                            </div>
+                            <div class="panel-body">
+                                <ul class="list-group">
+                                    <tal:repeat tal:repeat="resource latest_resources">
+                                        <li class="list-group-item">
+                                            <a href="${request.resource_url(resource)}">${resource.title}</a>
+                                            <span class="pull-right text-muted">
+                                                ${resource.get_category_display()}
+                                            </span>
+                                        </li>
+                                    </tal:repeat>
+                                </ul>
+                                <div tal:condition="not latest_resources" class="text-center text-muted">
+                                    暂无资源，<a href="${request.application_url}/add_resource_item">分享第一个</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 热门点子 -->
+                <div class="panel panel-default" style="margin-top: 20px;">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">热门点子</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <tal:repeat tal:repeat="idea hot_ideas">
+                                <div class="col-md-4">
+                                    <div class="thumbnail idea-thumbnail">
+                                        <div class="caption">
+                                            <h4><a href="${request.resource_url(idea)}">${idea.title}</a></h4>
+                                            <p>${idea.description[:100]}...</p>
+                                            <p>
+                                                <span class="label label-info">${idea.get_category_display()}</span>
+                                                <span class="label label-success">${idea.get_status_display()}</span>
+                                            </p>
+                                            <p class="text-muted">
+                                                <i class="glyphicon glyphicon-eye-open"></i> ${idea.views_count}
+                                                <i class="glyphicon glyphicon-heart"></i> ${idea.likes_count}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </tal:repeat>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 功能介绍 -->
+        <div class="features-section">
+            <div class="container">
+                <h2 class="section-title">社区功能</h2>
+                <div class="row">
+                    <div class="col-md-3 feature-item">
+                        <a href="${request.application_url}/ideas" class="feature-link">
+                            <div class="feature-icon">💡</div>
+                            <h3>点子广场</h3>
+                            <p>发布你的 AI 点子，找到志同道合的伙伴一起实现</p>
+                        </a>
+                    </div>
+                    <div class="col-md-3 feature-item">
+                        <a href="${request.application_url}/resources" class="feature-link">
+                            <div class="feature-icon">📦</div>
+                            <h3>资源库</h3>
+                            <p>分享和发现 AI 资源：模型、数据集、工具、API</p>
+                        </a>
+                    </div>
+                    <div class="col-md-3 feature-item">
+                        <a href="${request.application_url}/match" class="feature-link">
+                            <div class="feature-icon">🔗</div>
+                            <h3>智能匹配</h3>
+                            <p>通过标签匹配，让点子和资源精准对接</p>
+                        </a>
+                    </div>
+                    <div class="col-md-3 feature-item">
+                        <a href="${request.application_url}/ai-assistant" class="feature-link">
+                            <div class="feature-icon">🤖</div>
+                            <h3>AI 助手</h3>
+                            <p>浏览器端 AI 助手，优化点子、生成标签</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .home-page .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        .home-page .hero-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .home-page .hero-subtitle {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .home-page .hero-description {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .home-page .hero-actions .btn {
+            margin: 0 10px;
+        }
+        .home-page .stats-section {
+            background: #f8f9fa;
+            padding: 40px 0;
+            text-align: center;
+        }
+        .home-page .stat-item h2 {
+            font-size: 48px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .home-page .stat-item p {
+            font-size: 18px;
+            color: #7f8c8d;
+        }
+        .home-page .content-section {
+            padding: 40px 0;
+        }
+        .home-page .features-section {
+            background: #2c3e50;
+            color: white;
+            padding: 60px 0;
+        }
+        .home-page .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .home-page .feature-item {
+            text-align: center;
+            padding: 20px;
+        }
+        .home-page .feature-link {
+            display: block;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.2s;
+        }
+        .home-page .feature-link:hover {
+            transform: translateY(-5px);
+        }
+        .home-page .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .home-page .feature-item h3 {
+            margin-bottom: 15px;
+        }
+        .home-page .feature-item p {
+            opacity: 0.8;
+        }
+        .home-page .idea-thumbnail {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+    </style>
+</body>
+</html>
