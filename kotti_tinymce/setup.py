@@ -4,8 +4,8 @@ from setuptools import find_packages
 from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
-CHANGES = open(os.path.join(here, 'CHANGES.txt'), encoding='utf-8').read()
+README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read().replace('\r\n', '\n').replace('\r', '\n')
+CHANGES = open(os.path.join(here, 'CHANGES.txt'), encoding='utf-8').read().replace('\r\n', '\n').replace('\r', '\n')
 
 install_requires = [
     # Kotti2 with ``kotti_image`` add on is required
@@ -39,7 +39,7 @@ setup_requires = []
 
 setup(
     name='kotti2_tinymce',
-    version='3.0.0',
+    version='3.0.1',
     description="TinyMCE plugins for Kotti2 (Python 3.12 + SQLAlchemy 2.0)",
     long_description=README + '\n\n' + CHANGES,
     long_description_content_type="text/x-rst",

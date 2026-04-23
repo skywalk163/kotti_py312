@@ -1,5 +1,6 @@
 include README.rst
 include CHANGES.txt
 recursive-include kotti_tinymce/locale *
-recursive-include kotti_tinymce/static *
+recursive-include kotti_tinymce/static *.css *.png *.gif *.jpg *.jpeg *.svg *.woff *.ttf *.eot *.pt
+recursive-include kotti_tinymce/static *.min.js
 recursive-include kotti_tinymce/templates *

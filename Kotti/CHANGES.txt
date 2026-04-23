@@ -1,6 +1,14 @@
 Change History
 ==============
 
+3.0.1 - 2026-04-23
+------------------
+
+- **Packaging improvements**:
+  - Fixed line ending issues in setup.py (Windows CRLF to LF conversion)
+  - Fixed reStructuredText syntax error in CHANGES.txt
+- **No functional changes**: This is a packaging-only release
+
 3.0.0 - 2026-04-23
 ------------------
 
@@ -514,7 +522,7 @@ make the universe collapse!**
 - Allow restricting *add views* to specific contexts. This allows third party
   developers to register new content types that are addable in specific
   type of contexts, by specifying ``context=SomeContentType`` in their
-  *add view* registration and having ``type_info.addable=['SomeContentType']``
+  *add views* registration and having ``type_info.addable=['SomeContentType']``
   in the type info.
 
 - For documents with duplicate titles that end in a number, append a counter

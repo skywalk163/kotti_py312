@@ -4,7 +4,7 @@ import os
 from setuptools import find_packages
 from setuptools import setup
 
-version = '3.0.0'
+version = '3.0.1'
 description = "A high-level, Pythonic web application framework based on " \
               "Pyramid and SQLAlchemy.  It includes an extensible Content " \
               "Management System called the Kotti CMS." \
@@ -109,7 +109,7 @@ def read(*parts):
     """
 
     with codecs.open(os.path.join(here, *parts), "rb", "utf-8") as f:
-        return f.read()
+        return f.read().replace('\r\n', '\n').replace('\r', '\n')
 
 
 setup(name='Kotti2',

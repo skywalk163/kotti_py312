@@ -5,15 +5,15 @@ from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
 try:
-    README = open(os.path.join(here, "README.rst"), encoding="utf-8").read()
+    README = open(os.path.join(here, "README.rst"), encoding="utf-8").read().replace('\r\n', '\n').replace('\r', '\n')
 except IOError:
     README = ""
 try:
-    CHANGES = open(os.path.join(here, "CHANGES.rst"), encoding="utf-8").read()
+    CHANGES = open(os.path.join(here, "CHANGES.rst"), encoding="utf-8").read().replace('\r\n', '\n').replace('\r', '\n')
 except IOError:
     CHANGES = ""
 
-version = "3.0.0"
+version = "3.0.1"
 
 install_requires = [
     "Kotti2>=3.0.0",

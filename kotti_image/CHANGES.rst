@@ -1,6 +1,13 @@
 History
 =======
 
+3.0.1 - 2026-04-23
+------------------
+
+- **Packaging improvements**:
+  - Fixed line ending issues in setup.py (Windows CRLF to LF conversion)
+- **No functional changes**: This is a packaging-only release
+
 3.0.0 - 2026-04-23
 ------------------
 

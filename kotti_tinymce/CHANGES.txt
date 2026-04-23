@@ -1,6 +1,16 @@
 ChangeLog
 =========
 
+3.0.1 - 2026-04-23
+------------------
+
+- **Packaging improvements**:
+  - Fixed line ending issues in setup.py (Windows CRLF to LF conversion)
+  - Optimized package size by excluding non-minified JavaScript files
+  - Updated MANIFEST.in to only include .min.js files
+- **Package size reduced**: from ~2.3 MB to ~630 KB (~73% reduction)
+- **No functional changes**: This is a packaging-only release
+
 3.0.0 - 2026-04-23
 ------------------
 
