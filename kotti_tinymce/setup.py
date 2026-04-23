@@ -8,14 +8,14 @@ README = open(os.path.join(here, 'README.rst'), encoding='utf-8').read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt'), encoding='utf-8').read()
 
 install_requires = [
-    # Kotti with ``kotti_image`` add on is required
-    'Kotti>=2.0.0',
+    # Kotti2 with ``kotti_image`` add on is required
+    'Kotti2>=3.0.0',
 ]
 
 # copied from Kotti, necessary because extras are not supported in
 # ``extras_require``.  See https://github.com/pypa/pip/issues/3189
 tests_require = [
-    'kotti_image>=1.0.1',
+    'kotti2_image>=3.0.0',
     'WebTest',
     'mock',
     'Pillow',  # thumbnail filter in depot tween tests
@@ -38,9 +38,9 @@ development_requires = [
 setup_requires = []
 
 setup(
-    name='kotti_tinymce',
-    version='0.7.2.dev0',
-    description="TinyMCE plugins for Kotti",
+    name='kotti2_tinymce',
+    version='3.0.0',
+    description="TinyMCE plugins for Kotti2 (Python 3.12 + SQLAlchemy 2.0)",
     long_description=README + '\n\n' + CHANGES,
     long_description_content_type="text/x-rst",
     classifiers=[
@@ -62,7 +62,7 @@ setup(
     author='Andreas Kaiser',
     author_email='disko@binary-punks.com',
     url='https://github.com/Kotti/kotti_tinymce',
-    keywords='tinymce image browser kotti cms pylons pyramid',
+    keywords='tinymce image browser kotti kotti2 cms',
     license="BSD",
     packages=find_packages(),
     include_package_data=True,

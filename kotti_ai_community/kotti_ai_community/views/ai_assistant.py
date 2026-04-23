@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-AI 助手视图
+AI Assistant Views.
 
-包含:
-- AI 助手聊天界面
-- 点子优化接口
-- 标签生成接口
+Contains:
+- AI Assistant chat interface
+- Idea optimization API
+- Tag suggestion API
 """
 
 from pyramid.view import view_config
@@ -25,7 +25,7 @@ import json
     permission="view",
 )
 def ai_assistant(context, request):
-    """AI 助手聊天界面"""
+    """AI Assistant chat interface."""
     return {
         "api": template_api(context, request),
     }
@@ -39,7 +39,7 @@ def ai_assistant(context, request):
     request_method="POST",
 )
 def api_optimize_idea(context, request):
-    """API: 优化点子描述（返回前端处理的提示词）"""
+    """API: Optimize idea description (returns prompt for frontend)."""
     try:
         data = request.json_body
         idea_data = {
@@ -49,29 +49,38 @@ def api_optimize_idea(context, request):
             "neededResources": data.get("needed_resources", ""),
             "expectedOutcome": data.get("expected_outcome", ""),
         }
-        
-        # 返回提示词，由前端调用 g4f
-        prompt = f"""请帮我优化以下 AI 点子的描述，使其更加清晰、专业、有吸引力：
 
-标题：{idea_data['title']}
-分类：{idea_data['category']}
-当前描述：{idea_data['description']}
-需要的资源：{idea_data['neededResources'] or '未填写'}
-预期成果：{idea_data['expectedOutcome'] or '未填写'}
-
-请从以下几个方面进行优化：
-1. 点子背景和动机
-2. 核心创新点
-3. 技术可行性分析
-4. 预期价值和影响
-5. 实施建议
-
-请用中文回复，格式清晰。"""
+        # Return prompt for frontend to call g4f
+        prompt = (
+            "Please help optimize the following AI idea description, "
+            "making it clearer, more professional and attractive:\n\n"
+            "Title: {title}\n"
+            "Category: {category}\n"
+            "Description: {description}\n"
+            "Needed Resources: {needed}\n"
+            "Expected Outcome: {expected}\n\n"
+            "Please optimize from:\n"
+            "1. Background and motivation\n"
+            "2. Core innovation points\n"
+            "3. Technical feasibility analysis\n"
+            "4. Expected value and impact\n"
+            "5. Implementation suggestions\n\n"
+            "Please respond in Chinese with clear formatting."
+        ).format(
+            title=idea_data["title"],
+            category=idea_data["category"],
+            description=idea_data["description"],
+            needed=idea_data["neededResources"] or "Not provided",
+            expected=idea_data["expectedOutcome"] or "Not provided",
+        )
 
         return {
             "success": True,
             "prompt": prompt,
-            "system_prompt": "你是一位 AI 产品专家和技术顾问，擅长帮助用户完善和优化 AI 项目点子。"
+            "system_prompt": (
+                "You are an AI product expert and technical consultant, "
+                "skilled at helping users improve and optimize AI project ideas."
+            ),
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -85,28 +94,32 @@ def api_optimize_idea(context, request):
     request_method="POST",
 )
 def api_suggest_tags(context, request):
-    """API: 生成标签建议"""
+    """API: Generate tag suggestions."""
     try:
         data = request.json_body
         content = data.get("content", "")
         content_type = data.get("type", "idea")
-        
-        prompt = f"""请根据以下内容，生成 5-10 个合适的标签：
 
-类型：{'点子' if content_type == 'idea' else '资源'}
-内容：{content}
-
-要求：
-1. 标签要准确反映内容主题
-2. 包含技术领域标签（如：NLP、CV、LLM等）
-3. 包含应用场景标签（如：智能客服、图像生成等）
-4. 标签简洁，每个 2-8 个字
-5. 只输出标签，用逗号分隔"""
+        type_label = "Idea" if content_type == "idea" else "Resource"
+        prompt = (
+            "Based on the following content, generate 5-10 appropriate tags:\n\n"
+            "Type: {type}\n"
+            "Content: {content}\n\n"
+            "Requirements:\n"
+            "1. Tags should accurately reflect the content topic\n"
+            "2. Include technical domain tags (e.g., NLP, CV, LLM)\n"
+            "3. Include application scenario tags\n"
+            "4. Keep tags concise, 2-8 characters each\n"
+            "5. Output only tags, separated by commas"
+        ).format(type=type_label, content=content)
 
         return {
             "success": True,
             "prompt": prompt,
-            "system_prompt": "你是一位标签分类专家，擅长为内容生成准确的分类标签。"
+            "system_prompt": (
+                "You are a tag classification expert, "
+                "skilled at generating accurate classification tags for content."
+            ),
         }
     except Exception as e:
         return {"success": False, "error": str(e)}
@@ -120,33 +133,42 @@ def api_suggest_tags(context, request):
     request_method="POST",
 )
 def api_match(context, request):
-    """API: 匹配点子和资源"""
+    """API: Match ideas with resources."""
     try:
         data = request.json_body
         idea = data.get("idea", {})
         resource = data.get("resource", {})
-        
-        prompt = f"""分析以下点子和资源的匹配度：
 
-点子：
-- 标题：{idea.get('title', '')}
-- 描述：{idea.get('description', '')}
-- 需要的资源：{idea.get('needed_resources', '')}
-
-资源：
-- 标题：{resource.get('title', '')}
-- 描述：{resource.get('description', '')}
-- 分类：{resource.get('category', '')}
-
-请分析：
-1. 匹配度评分（0-100分）
-2. 匹配理由
-3. 使用建议"""
+        prompt = (
+            "Analyze the match between the following idea and resource:\n\n"
+            "Idea:\n"
+            "- Title: {idea_title}\n"
+            "- Description: {idea_desc}\n"
+            "- Needed Resources: {idea_res}\n\n"
+            "Resource:\n"
+            "- Title: {res_title}\n"
+            "- Description: {res_desc}\n"
+            "- Category: {res_cat}\n\n"
+            "Please analyze:\n"
+            "1. Match score (0-100)\n"
+            "2. Match reasons\n"
+            "3. Usage suggestions"
+        ).format(
+            idea_title=idea.get("title", ""),
+            idea_desc=idea.get("description", ""),
+            idea_res=idea.get("needed_resources", ""),
+            res_title=resource.get("title", ""),
+            res_desc=resource.get("description", ""),
+            res_cat=resource.get("category", ""),
+        )
 
         return {
             "success": True,
             "prompt": prompt,
-            "system_prompt": "你是一位项目匹配专家，擅长分析点子和资源的契合度。"
+            "system_prompt": (
+                "You are a project matching expert, "
+                "skilled at analyzing the fit between ideas and resources."
+            ),
         }
     except Exception as e:
         return {"success": False, "error": str(e)}

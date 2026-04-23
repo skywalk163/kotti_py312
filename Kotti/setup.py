@@ -4,10 +4,11 @@ import os
 from setuptools import find_packages
 from setuptools import setup
 
-version = '2.0.10dev0'
+version = '3.0.0'
 description = "A high-level, Pythonic web application framework based on " \
               "Pyramid and SQLAlchemy.  It includes an extensible Content " \
-              "Management System called the Kotti CMS."
+              "Management System called the Kotti CMS." \
+              "\n\nThis is a fork with Python 3.12 and SQLAlchemy 2.0 support."
 author = 'Kotti Developers'
 author_email = 'kotti@googlegroups.com'
 url = 'http://kotti.pylonsproject.org/'
@@ -53,7 +54,7 @@ install_requires = [
     'repoze.lru',
     'repoze.workflow>=1.0b1',
     'repoze.zcml>=1.0b1',
-    'sqlalchemy>=1.4.16,<2',
+    'sqlalchemy>=2.0.0,<3.0.0',
     'sqlalchemy-utils>=0.37.6',
     'transaction>=1.1.0',
     'unidecode',
@@ -81,7 +82,7 @@ development_requires = [
     'check-manifest',
     'pipdeptree',
     'pyramid_debugtoolbar',
-    'kotti-tinymce>=0.7.0',
+    'kotti2-tinymce>=3.0.0',
 ]
 
 docs_require = [
@@ -111,7 +112,7 @@ def read(*parts):
         return f.read()
 
 
-setup(name='Kotti',
+setup(name='Kotti2',
       version=version,
       description=description,
       long_description='\n\n'.join([read('README.rst'),

@@ -1,43 +1,30 @@
-kotti_image
-***********
+kotti2_image
+************
 
-This is an extension to Kotti that allows to add images to your site.
+This is an extension to Kotti2 that allows you to add images to your site.
 
-**This package is only compatible with Kotti versions >= 1.3.0-dev and later.**
-Earlier versions of Kotti included the ``Image`` content type and everything directly related.
+**This package is only compatible with Kotti2 version 3.0.0 and later.**
 
-|build_status_stable|_
-|pypi|_
-|license|_
+.. image:: https://img.shields.io/pypi/v/kotti2_image.svg?style=flat-square
+    :target: https://pypi.org/project/kotti2_image/
+    :alt: PyPI Version
 
-.. |pypi| image:: https://img.shields.io/pypi/v/kotti_image.svg?style=flat-square
-.. _pypi: https://pypi.python.org/pypi/kotti_image/
+.. image:: https://img.shields.io/pypi/l/kotti2_image.svg?style=flat-square
+    :target: http://www.repoze.org/LICENSE.txt
+    :alt: License
 
-.. |license| image:: https://img.shields.io/pypi/l/kotti_image.svg?style=flat-square
-.. _license: http://www.repoze.org/LICENSE.txt
+`Find out more about Kotti2`_
 
-.. |build_status_stable| image:: https://img.shields.io/travis/Kotti/kotti_image/production.svg?style=flat-square
-.. _build_status_stable: http://travis-ci.org/Kotti/kotti_image
-
-`Find out more about Kotti`_
-
-Development happens at https://github.com/Kotti/kotti_image
-
-.. _Find out more about Kotti: http://pypi.python.org/pypi/Kotti
+.. _Find out more about Kotti2: https://pypi.org/project/Kotti2/
 
 Setup
 =====
 
-Kotti 1.x
----------
+To enable the extension in your Kotti2 site::
 
-You don't need to do anything.
-``kotti_image`` is a requirement of Kotti and automatically setup for you.
+    pip install kotti2_image
 
-Kotti 2.x
----------
-
-To enable the extension in your Kotti site (``pip install kotti_image``), activate the configurator::
+Then activate the configurator in your INI file::
 
     kotti.configurators =
         kotti_image.kotti_configure
@@ -56,20 +43,11 @@ The migration is performed with `alembic`_ and Kotti's console script ``kotti-mi
 To migrate, run ``kotti-migrate <your.ini> upgrade --scripts=kotti_image:alembic`` (or ``kotti-migrate <your.ini> upgrade_all`` to run all Kotti and add on migrations).
 
 For integration of alembic in your environment please refer to the `alembic documentation`_.
-If you have problems with the upgrade, please create a new issue in the `tracker`_.
 
 Development
 ===========
 
-|build_status_master|_
-
-.. |build_status_master| image:: https://img.shields.io/travis/Kotti/kotti_image/master.svg?style=flat-square
-.. _build_status_master: http://travis-ci.org/Kotti/kotti_image
-
-Contributions to kotti_image are highly welcome.
-Just clone its `Github repository`_ and submit your contributions as pull requests.
+Contributions to kotti2_image are highly welcome.
 
 .. _alembic: http://pypi.python.org/pypi/alembic
 .. _alembic documentation: http://alembic.readthedocs.org/en/latest/index.html
-.. _tracker: https://github.com/Kotti/kotti_image/issues
-.. _Github repository: https://github.com/Kotti/kotti_image

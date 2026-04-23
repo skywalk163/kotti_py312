@@ -3,7 +3,6 @@ Compatibility module for Python 3.12+.
 
 This module provides replacements for deprecated/removed modules.
 """
-from __future__ import annotations
 
 import io
 import sys

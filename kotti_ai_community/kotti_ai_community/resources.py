@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-AI共创社区内容类型定义
+AI Community content type definitions.
 
-包含:
-- Idea: 点子内容类型
-- ResourceItem: 资源内容类型
+Contains:
+- Idea: Idea content type
+- ResourceItem: Resource content type
 """
 
 from sqlalchemy import Column
@@ -27,119 +27,119 @@ from zope.interface import implementer
 
 
 # ============================================================================
-# 点子状态枚举
+# Idea status enum
 # ============================================================================
 IDEA_STATUS = {
-    "draft": _("草稿"),
-    "brainstorming": _("构思中"),
-    "recruiting": _("招募中"),
-    "in_progress": _("进行中"),
-    "completed": _("已完成"),
-    "archived": _("已归档"),
+    "draft": _("Draft"),
+    "brainstorming": _("Brainstorming"),
+    "recruiting": _("Recruiting"),
+    "in_progress": _("In Progress"),
+    "completed": _("Completed"),
+    "archived": _("Archived"),
 }
 
 IDEA_CATEGORIES = {
-    "tool": _("工具/应用"),
-    "research": _("研究/实验"),
-    "startup": _("创业/商业"),
-    "learning": _("学习/教育"),
-    "creative": _("创意/艺术"),
-    "other": _("其他"),
+    "tool": _("Tool/Application"),
+    "research": _("Research/Experiment"),
+    "startup": _("Startup/Business"),
+    "learning": _("Learning/Education"),
+    "creative": _("Creative/Art"),
+    "other": _("Other"),
 }
 
 DIFFICULTY_LEVELS = {
-    "beginner": _("入门级"),
-    "intermediate": _("中级"),
-    "advanced": _("高级"),
-    "expert": _("专家级"),
+    "beginner": _("Beginner"),
+    "intermediate": _("Intermediate"),
+    "advanced": _("Advanced"),
+    "expert": _("Expert"),
 }
 
 
 # ============================================================================
-# 资源类型枚举
+# Resource type enum
 # ============================================================================
 RESOURCE_CATEGORIES = {
-    "model": _("模型/权重"),
-    "dataset": _("数据集"),
-    "tool": _("工具/框架"),
-    "api": _("API 服务"),
-    "compute": _("算力资源"),
-    "funding": _("资金支持"),
-    "mentor": _("导师/指导"),
-    "other": _("其他"),
+    "model": _("Model/Weights"),
+    "dataset": _("Dataset"),
+    "tool": _("Tool/Framework"),
+    "api": _("API Service"),
+    "compute": _("Compute Resources"),
+    "funding": _("Funding"),
+    "mentor": _("Mentor/Guidance"),
+    "other": _("Other"),
 }
 
 ACCESS_TYPES = {
-    "free": _("免费开放"),
-    "freemium": _("部分免费"),
-    "paid": _("付费"),
-    "application": _("申请制"),
-    "invite": _("邀请制"),
+    "free": _("Free/Open"),
+    "freemium": _("Freemium"),
+    "paid": _("Paid"),
+    "application": _("By Application"),
+    "invite": _("By Invitation"),
 }
 
 
 # ============================================================================
-# Idea - 点子内容类型
+# Idea - Idea content type
 # ============================================================================
 @implementer(IContent)
 class Idea(Content):
-    """点子内容类型
+    """Idea content type.
 
-    用于发布 AI 相关的点子、想法和项目构思
+    Used for posting AI-related ideas, thoughts and project concepts.
     """
 
     __tablename__ = "ideas"
     __mapper_args__ = dict(polymorphic_identity="idea")
 
-    #: 关联到 Content 的 id
+    #: Foreign key to Content id
     id = Column(Integer, ForeignKey("contents.id"), primary_key=True)
 
-    #: 点子分类
+    #: Idea category
     category = Column(String(50), default="other")
 
-    #: 难度等级
+    #: Difficulty level
     difficulty = Column(String(50), default="beginner")
 
-    #: 状态
+    #: Status
     status = Column(String(50), default="draft")
 
-    #: 标签 (JSON 数组)
+    #: Tags (JSON array)
     tags = Column(JsonType, default=list)
 
-    #: 详细描述
+    #: Detailed description
     description = Column(UnicodeText())
 
-    #: 需要的资源描述
+    #: Needed resources description
     needed_resources = Column(UnicodeText())
 
-    #: 预期成果
+    #: Expected outcome
     expected_outcome = Column(UnicodeText())
 
-    #: 预计时间 (天)
+    #: Estimated time (days)
     estimated_days = Column(Integer, default=0)
 
-    #: 关注者数量
+    #: Followers count
     followers_count = Column(Integer, default=0)
 
-    #: 点赞数
+    #: Likes count
     likes_count = Column(Integer, default=0)
 
-    #: 浏览数
+    #: Views count
     views_count = Column(Integer, default=0)
 
-    #: AI 生成的建议 (可选)
+    #: AI-generated suggestions (optional)
     ai_suggestions = Column(UnicodeText())
 
     type_info = Content.type_info.copy(
         name="idea",
-        title=_("点子"),
+        title=_("Idea"),
         add_view="add_idea",
         addable_to=["Document"],
         edit_links=[],
     )
 
     def __init__(self, title=None, description=None, **kwargs):
-        """初始化点子"""
+        """Initialize the idea."""
         super(Idea, self).__init__(title=title, **kwargs)
         self.description = description
         self.tags = kwargs.get("tags", [])
@@ -151,77 +151,77 @@ class Idea(Content):
         self.estimated_days = kwargs.get("estimated_days", 0)
 
     def get_status_display(self):
-        """获取状态的显示文本"""
+        """Get display text for status."""
         return IDEA_STATUS.get(self.status, self.status)
 
     def get_category_display(self):
-        """获取分类的显示文本"""
+        """Get display text for category."""
         return IDEA_CATEGORIES.get(self.category, self.category)
 
     def get_difficulty_display(self):
-        """获取难度的显示文本"""
+        """Get display text for difficulty."""
         return DIFFICULTY_LEVELS.get(self.difficulty, self.difficulty)
 
 
 # ============================================================================
-# ResourceItem - 资源内容类型
+# ResourceItem - Resource content type
 # ============================================================================
 @implementer(IContent)
 class ResourceItem(Content):
-    """资源内容类型
+    """Resource content type.
 
-    用于分享 AI 相关的资源，如模型、数据集、工具等
+    Used for sharing AI-related resources like models, datasets, tools, etc.
     """
 
     __tablename__ = "resource_items"
     __mapper_args__ = dict(polymorphic_identity="resource_item")
 
-    #: 关联到 Content 的 id
+    #: Foreign key to Content id
     id = Column(Integer, ForeignKey("contents.id"), primary_key=True)
 
-    #: 资源分类
+    #: Resource category
     category = Column(String(50), default="other")
 
-    #: 访问方式
+    #: Access type
     access_type = Column(String(50), default="free")
 
-    #: 标签 (JSON 数组)
+    #: Tags (JSON array)
     tags = Column(JsonType, default=list)
 
-    #: 详细描述
+    #: Detailed description
     description = Column(UnicodeText())
 
-    #: 资源链接
+    #: Resource URL
     url = Column(Unicode(500))
 
-    #: 使用说明
+    #: Usage guide
     usage_guide = Column(UnicodeText())
 
-    #: 限制条件
+    #: Limitations
     limitations = Column(UnicodeText())
 
-    #: 可用性状态
+    #: Availability status
     availability = Column(String(50), default="available")
 
-    #: 被引用次数
+    #: References count
     references_count = Column(Integer, default=0)
 
-    #: 点赞数
+    #: Likes count
     likes_count = Column(Integer, default=0)
 
-    #: 浏览数
+    #: Views count
     views_count = Column(Integer, default=0)
 
     type_info = Content.type_info.copy(
         name="resource_item",
-        title=_("资源"),
+        title=_("Resource"),
         add_view="add_resource_item",
         addable_to=["Document"],
         edit_links=[],
     )
 
     def __init__(self, title=None, description=None, **kwargs):
-        """初始化资源"""
+        """Initialize the resource."""
         super(ResourceItem, self).__init__(title=title, **kwargs)
         self.description = description
         self.tags = kwargs.get("tags", [])
@@ -232,9 +232,9 @@ class ResourceItem(Content):
         self.limitations = kwargs.get("limitations", "")
 
     def get_category_display(self):
-        """获取分类的显示文本"""
+        """Get display text for category."""
         return RESOURCE_CATEGORIES.get(self.category, self.category)
 
     def get_access_type_display(self):
-        """获取访问方式的显示文本"""
+        """Get display text for access type."""
         return ACCESS_TYPES.get(self.access_type, self.access_type)

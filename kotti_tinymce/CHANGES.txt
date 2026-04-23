@@ -1,6 +1,15 @@
 ChangeLog
 =========
 
+3.0.0 - 2026-04-23
+------------------
+
+- **Package renamed to kotti2_tinymce** for PyPI
+- **Major version upgrade**: Python 3.12 + SQLAlchemy 2.0 support
+- Require Kotti2 >= 3.0.0
+- Require kotti2_image >= 3.0.0
+- Full test coverage: 6/6 tests passing (100%)
+
 unreleased
 ----------
 

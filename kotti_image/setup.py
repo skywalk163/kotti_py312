@@ -13,10 +13,10 @@ try:
 except IOError:
     CHANGES = ""
 
-version = "2.0.1dev0"
+version = "3.0.0"
 
 install_requires = [
-    "Kotti>=2.0.0",
+    "Kotti2>=3.0.0",
     "Pillow",
     "plone.scale",
 ]
@@ -40,9 +40,9 @@ development_requires = [
 setup_requires = []
 
 setup(
-    name="kotti_image",
+    name="kotti2_image",
     version=version,
-    description="Image content type for Kotti",
+    description="Image content type for Kotti2 (Python 3.12 + SQLAlchemy 2.0)",
     long_description="\n\n".join([README, CHANGES]),
     long_description_content_type="text/x-rst",
     classifiers=[
@@ -66,7 +66,7 @@ setup(
     author="Kotti Developers",
     author_email="kotti@googlegroups.com",
     url="https://github.com/Kotti/kotti_image",
-    keywords="kotti web cms wcms pylons pyramid sqlalchemy bootstrap",
+    keywords="kotti kotti2 web cms image",
     license="BSD-derived (http://www.repoze.org/LICENSE.txt)",
     packages=find_packages(),
     include_package_data=True,

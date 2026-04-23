@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-AI共创社区插件
+AI Community Plugin for Kotti CMS.
 
-基于 Kotti CMS 构建的 AI 资源互助平台
+An AI resource sharing platform based on Kotti CMS.
 """
 
 from kotti_ai_community.resources import Idea
@@ -10,15 +10,15 @@ from kotti_ai_community.resources import ResourceItem
 
 
 def kotti_configure(settings):
-    """配置插件"""
-    # 添加 pyramid includes
+    """Configure the plugin."""
+    # Add pyramid includes
     if "pyramid.includes" in settings:
         if "kotti_ai_community" not in settings["pyramid.includes"]:
             settings["pyramid.includes"] += " kotti_ai_community"
     else:
         settings["pyramid.includes"] = "kotti_ai_community"
-    
-    # 添加到可用类型
+
+    # Add to available types
     if "kotti.available_types" in settings:
         types = settings["kotti.available_types"].split()
         if "kotti_ai_community.resources.Idea" not in types:
@@ -36,6 +36,6 @@ def kotti_configure(settings):
 
 
 def includeme(config):
-    """Pyramid 包含配置"""
-    # 扫描整个 kotti_ai_community 包
+    """Pyramid includeme hook."""
+    # Scan the entire kotti_ai_community package
     config.scan("kotti_ai_community")

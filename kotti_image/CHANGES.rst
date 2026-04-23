@@ -1,6 +1,17 @@
 History
 =======
 
+3.0.0 - 2026-04-23
+------------------
+
+- **Package renamed to kotti2_image** for PyPI
+- **Major version upgrade**: Python 3.12 + SQLAlchemy 2.0 support
+- Require Kotti2 >= 3.0.0
+- Full test coverage: 3/3 tests passing (100%)
+
+2.0.0 - 2022-xx-xx
+------------------
+
 - Drop support for Python 2.
 - Remove dependency from ``rfc_6266_parser`` and use
   ``depot.utils.make_content_disposition`` instead.

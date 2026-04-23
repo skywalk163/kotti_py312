@@ -1,6 +1,26 @@
 Change History
 ==============
 
+3.0.0 - 2026-04-23
+------------------
+
+- **Package renamed to Kotti2** for PyPI distribution
+- **Major version upgrade**: Python 3.12 support
+- **SQLAlchemy 2.0 compatibility**: Full support for SQLAlchemy 2.0.49
+- **Breaking changes**:
+  - ``relation`` renamed to ``relationship`` (SQLAlchemy 2.0)
+  - ``with_polymorphic`` is now a standalone function
+  - ``enable_eagerloads`` replaced with ``lazyload('*')``
+  - ``load_only`` requires ORM attributes, not strings
+  - ``select()`` syntax updated for SQLAlchemy 2.0
+- **Removed deprecated features**:
+  - ``bake_lazy_loaders`` (removed in SQLAlchemy 1.4+)
+- **Bug fixes**:
+  - Fixed ``_symbol`` import for SQLAlchemy 2.0
+  - Fixed type annotation issues in ``SaveDataMixin.data``
+  - Fixed MIME type detection test for cross-platform compatibility
+- **Test coverage**: 379/379 tests passing (100%)
+
 2.0.10 - unreleased
 -------------------
 

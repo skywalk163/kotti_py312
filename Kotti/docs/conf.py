@@ -15,9 +15,6 @@ import os
 import sys
 from datetime import date
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.abspath('..'))
-
 # Use importlib.metadata instead of pkg_resources
 try:
     from importlib.metadata import version as get_version
