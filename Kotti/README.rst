@@ -14,6 +14,18 @@ Kotti2
     :target: http://www.repoze.org/LICENSE.txt
     :alt: License
 
+.. image:: https://github.com/skywalk163/kotti_py312/actions/workflows/sqlite.yml/badge.svg
+    :target: https://github.com/skywalk163/kotti_py312/actions/workflows/sqlite.yml
+    :alt: SQLite Tests
+
+.. image:: https://github.com/skywalk163/kotti_py312/actions/workflows/postgres.yml/badge.svg
+    :target: https://github.com/skywalk163/kotti_py312/actions/workflows/postgres.yml
+    :alt: PostgreSQL Tests
+
+.. image:: https://github.com/skywalk163/kotti_py312/actions/workflows/mysql.yml/badge.svg
+    :target: https://github.com/skywalk163/kotti_py312/actions/workflows/mysql.yml
+    :alt: MySQL Tests
+
 **Kotti2** is a fork of Kotti CMS with Python 3.12 and SQLAlchemy 2.0 support.
 
 Kotti is a high-level, Pythonic web application framework based on Pyramid_ and SQLAlchemy_.
