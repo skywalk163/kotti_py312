@@ -1,4 +1,4 @@
-name: MySQL
+name: MySQL (Kotti)
 
 on:
   push:
@@ -43,6 +43,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     
     - name: Install dependencies
+      working-directory: ./Kotti
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[testing]"
@@ -57,6 +58,7 @@ jobs:
         done
     
     - name: Test with pytest
+      working-directory: ./Kotti
       run: |
         pytest kotti/tests/ -v --tb=short
       env:

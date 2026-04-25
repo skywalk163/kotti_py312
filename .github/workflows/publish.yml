@@ -1,4 +1,4 @@
-name: Publish to PyPI
+name: Publish Kotti to PyPI
 
 on:
   release:
@@ -25,12 +25,16 @@ jobs:
         pip install build twine
     
     - name: Build package
+      working-directory: ./Kotti
       run: |
         python -m build
     
     - name: Check package
+      working-directory: ./Kotti
       run: |
         twine check dist/*
     
     - name: Publish to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        packages-dir: ./Kotti/dist/
