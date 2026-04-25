@@ -21,6 +21,10 @@ class IFile(IContent):
        (and subclasses thereof)"""
 
 
+class IEmbeddedPage(IContent):
+    """Marker interface for embedded pages (iframe content)"""
+
+
 class IDefaultWorkflow(Interface):
     """Marker interface for content classes that want to use the
        default workflow"""

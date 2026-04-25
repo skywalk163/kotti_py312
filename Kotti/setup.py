@@ -4,7 +4,7 @@ import os
 from setuptools import find_packages
 from setuptools import setup
 
-version = '3.0.1'
+version = '3.0.2'
 description = "A high-level, Pythonic web application framework based on " \
               "Pyramid and SQLAlchemy.  It includes an extensible Content " \
               "Management System called the Kotti CMS." \
@@ -17,54 +17,54 @@ license = "BSD-derived (http://www.repoze.org/LICENSE.txt)"
 
 
 install_requires = [
-    'Babel',
-    'Chameleon>=2.7.4',  # Fixes error when raising HTTPFound
-    'alembic>=0.8.0',
+    'Babel>=2.12.0',
+    'Chameleon>=3.10.0',  # Fixes error when raising HTTPFound
+    'alembic>=1.12.0',
     'bcrypt>=4.0.0',
-    'bleach>=4,<6',
-    'bleach-allowlist',
-    'colander>=1.3.2',
+    'bleach>=5.0.0,<6',
+    'bleach-allowlist>=1.0.3',
+    'colander>=1.8.3',
     'deform==2.0.14',  # Locked version for js.deform compatibility
-    'docopt',
-    'fanstatic>=1.0.0',
-    'filedepot',
-    'formencode>=2.0.0',
-    'html2text',
-    'iso8601>=0.1.13',
-    'js.angular',
-    'js.bootstrap>=3.0.0',
+    'docopt>=0.6.2',
+    'fanstatic>=1.2',
+    'filedepot>=0.8.0',
+    'formencode>=2.0.1',
+    'html2text>=2020.1.16',
+    'iso8601>=1.0.2',
+    'js.angular>=1.1.4',
+    'js.bootstrap>=3.3.4',
     'js.deform>=2.0.14',
-    'js.fineuploader',
-    'js.html5shiv',
-    'js.jquery<2.0.0.dev',  # rq.filter: <2.0
-    'js.jquery_form',
-    'js.jquery_tablednd',
-    'js.jquery_timepicker_addon',
-    'js.jqueryui>=1.8.24',
-    'js.jqueryui_tagit',
-    'lingua>=1.3',
+    'js.fineuploader>=5.14.0',
+    'js.html5shiv>=3.7.3',
+    'js.jquery>=1.9.1,<2.0.0',  # rq.filter: <2.0
+    'js.jquery_form>=3.9',
+    'js.jquery_tablednd>=0.4',
+    'js.jquery_timepicker_addon>=1.5.3',
+    'js.jqueryui>=1.10.3',
+    'js.jqueryui_tagit>=2.0.24.post2',
+    'lingua>=4.15.0',
     'PasteDeploy>=3.0',  # Python 3.12 compatibility
-    'pyramid>=1.9,<2',
-    'pyramid_beaker',
-    'pyramid_chameleon',
-    'pyramid_deform>=0.2a3',  # language and template path config includeme
-    'pyramid_mailer',
-    'pyramid_tm',
-    'pyramid_zcml>=1.1.0',  # py3 compat
-    'repoze.lru',
-    'repoze.workflow>=1.0b1',
-    'repoze.zcml>=1.0b1',
-    'sqlalchemy>=2.0.0,<3.0.0',
-    'sqlalchemy-utils>=0.37.6',
-    'transaction>=1.1.0',
-    'unidecode',
-    'waitress',
-    'zope.deprecation',
-    'zope.interface',
-    'zope.sqlalchemy',
+    'pyramid>=1.10.8,<2',
+    'pyramid_beaker>=0.8',  # Note: Beaker has CVE-2013-7489, consider migrating
+    'pyramid_chameleon>=0.3',
+    'pyramid_deform>=0.2',  # language and template path config includeme
+    'pyramid_mailer>=0.15.1',
+    'pyramid_tm>=2.5',
+    'pyramid_zcml>=1.2.0',  # py3 compat
+    'repoze.lru>=0.7',
+    'repoze.workflow>=1.1',
+    'repoze.zcml>=1.1',
+    'sqlalchemy>=1.4.36,<2',  # Keep <2 due to technical issues
+    'sqlalchemy-utils>=0.38.2',
+    'transaction>=3.0.1',
+    'unidecode>=1.3.4',
+    'waitress>=2.1.1',
+    'zope.deprecation>=4.4.0',
+    'zope.interface>=5.4.0',
+    'zope.sqlalchemy>=1.6',
     # Python 3.12 compatibility
-    'importlib_metadata; python_version < "3.10"',
-    'importlib_resources; python_version < "3.9"',
+    'importlib_metadata>=4.8.0; python_version < "3.10"',
+    'importlib_resources>=5.0.0; python_version < "3.9"',
     ]
 
 tests_require = [

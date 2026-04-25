@@ -71,6 +71,7 @@ from kotti import metadata
 from kotti.interfaces import IContent
 from kotti.interfaces import IDefaultWorkflow
 from kotti.interfaces import IDocument
+from kotti.interfaces import IEmbeddedPage
 from kotti.interfaces import IFile
 from kotti.interfaces import INode
 from kotti.migrate import stamp_heads
@@ -723,6 +724,111 @@ class Document(Content):
 
         self.body = body
         self.mime_type = mime_type
+
+
+@implementer(IEmbeddedPage, IDefaultWorkflow)
+class EmbeddedPage(Content):
+    """EmbeddedPage is a content type that allows embedding external
+    web pages via iframe. It provides security controls including:
+    
+    - Domain whitelist for allowed iframe sources
+    - Sandbox attribute for iframe security
+    - Custom iframe dimensions
+    - Optional fallback content for blocked iframes
+    
+    This is useful for creating AI aggregator pages, dashboards,
+    or embedding external tools within Kotti.
+    
+    Note: The 'description' field is inherited from Content and is used
+    for the content description shown above the iframe.
+    """
+
+    #: Primary key column in the DB
+    id = Column(ForeignKey(Content.id), primary_key=True)
+    
+    #: URL to embed in the iframe
+    #: (:class:`sqlalchemy.types.Unicode`)
+    embed_url = Column(Unicode(2000))
+    
+    #: Fallback content when iframe is blocked
+    #: (:class:`sqlalchemy.types.UnicodeText`)
+    fallback_content = Column(UnicodeText())
+    
+    #: Iframe height in pixels (0 for auto)
+    #: (:class:`sqlalchemy.types.Integer`)
+    iframe_height = Column(Integer(), default=600)
+    
+    #: Whether to allow fullscreen
+    #: (:class:`sqlalchemy.types.Boolean`)
+    allow_fullscreen = Column(Boolean(), default=True)
+    
+    #: Custom sandbox attributes (space-separated)
+    #: (:class:`sqlalchemy.types.Unicode`)
+    sandbox_attrs = Column(Unicode(500))
+    
+    #: Additional CSS classes for the iframe container
+    #: (:class:`sqlalchemy.types.Unicode`)
+    css_class = Column(Unicode(100))
+
+    type_info = Content.type_info.copy(
+        name="EmbeddedPage",
+        title=_("Embedded Page"),
+        add_view="add_embedded_page",
+        addable_to=["Document", "Folder"],
+        is_implicit_addable=True,
+    )
+
+    def __init__(
+        self,
+        embed_url: Optional[str] = "",
+        fallback_content: Optional[str] = "",
+        iframe_height: int = 600,
+        allow_fullscreen: bool = True,
+        sandbox_attrs: Optional[str] = None,
+        css_class: Optional[str] = "",
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+        self.embed_url = embed_url
+        self.fallback_content = fallback_content
+        self.iframe_height = iframe_height
+        self.allow_fullscreen = allow_fullscreen
+        self.sandbox_attrs = sandbox_attrs or "allow-scripts allow-same-origin allow-popups allow-forms"
+        self.css_class = css_class
+
+    def get_sandbox_value(self) -> str:
+        """Return the sandbox attribute value for the iframe."""
+        return self.sandbox_attrs or "allow-scripts allow-same-origin allow-popups allow-forms"
+
+    def is_url_allowed(self, allowed_domains: Optional[List[str]] = None) -> bool:
+        """Check if the embed_url is in the allowed domains list.
+        
+        :param allowed_domains: List of allowed domains. If None, all domains are allowed.
+        :return: True if the URL is allowed, False otherwise.
+        """
+        if not allowed_domains:
+            return True
+        
+        from urllib.parse import urlparse
+        try:
+            parsed = urlparse(self.embed_url)
+            domain = parsed.netloc.lower()
+            # Remove www. prefix for comparison
+            if domain.startswith('www.'):
+                domain = domain[4:]
+            
+            # Normalize allowed domains (strip www. prefix)
+            normalized_allowed = []
+            for allowed in allowed_domains:
+                allowed_lower = allowed.lower()
+                if allowed_lower.startswith('www.'):
+                    allowed_lower = allowed_lower[4:]
+                normalized_allowed.append(allowed_lower)
+            
+            return any(domain == allowed or domain.endswith('.' + allowed) 
+                      for allowed in normalized_allowed)
+        except Exception:
+            return False
 
 
 # noinspection PyMethodParameters

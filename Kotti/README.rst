@@ -73,6 +73,54 @@ Kotti2 is a fork that includes:
 - **SQLAlchemy 2.0 support**: Updated to work with SQLAlchemy 2.0.49
 - **Test coverage**: 379/379 tests passing (100%)
 
+Security Advisory
+=================
+
+.. warning::
+
+   **Beaker Session Vulnerability (CVE-2013-7489)**
+   
+   The default session factory uses Beaker, which has a known `pickle deserialization 
+   vulnerability <https://nvd.nist.gov/vuln/detail/CVE-2013-7489>`_ that could lead to 
+   remote code execution. This vulnerability exists when untrusted data is deserialized.
+
+**Recommended Action:**
+
+If your application doesn't store large amounts of data in sessions (cookie limit is ~4KB), 
+switch to the secure cookie-based session factory by adding this to your INI configuration::
+
+    kotti.session_factory = kotti.signed_cookie_session_factory
+
+**Why Beaker is Still the Default:**
+
+- Cookie-based sessions have a ~4KB size limit
+- Some applications store large data in sessions (e.g., file uploads, clipboard operations)
+- Beaker supports server-side storage (file, database, memcached) without size limits
+
+**Migration Guide:**
+
+1. **For simple applications** (small session data):
+   
+   Change your INI file::
+   
+       kotti.session_factory = kotti.signed_cookie_session_factory
+       
+   Optional configuration::
+   
+       kotti.session.timeout = 3600
+       kotti.session.secure = true
+       kotti.session.httponly = true
+
+2. **For applications with large session data**:
+   
+   Continue using Beaker but configure server-side storage::
+   
+       session.type = file
+       session.data_dir = /path/to/sessions/data
+       session.lock_dir = /path/to/sessions/lock
+   
+   Or use database-backed sessions for better security.
+
 License
 =======
 

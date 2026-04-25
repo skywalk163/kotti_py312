@@ -6,6 +6,7 @@ from pyramid.view import render_view_to_response
 from pyramid.view import view_config
 
 from kotti.interfaces import IContent
+from kotti.interfaces import IEmbeddedPage
 from kotti.views.util import search_content
 from kotti.views.util import search_content_for_tags
 
@@ -85,6 +86,17 @@ def search_results_for_tag(context, request):
     renderer="kotti:templates/view/document.pt",
 )
 def view(context, request):
+    return {}
+
+
+@view_config(
+    name="view",
+    context=IEmbeddedPage,
+    permission="view",
+    renderer="kotti:templates/view/embedded_page.pt",
+)
+def view_embedded_page(context, request):
+    """View for EmbeddedPage content type."""
     return {}
 
 

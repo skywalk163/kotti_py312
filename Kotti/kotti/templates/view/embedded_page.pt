@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      metal:use-macro="api.macro('kotti:templates/view/master.pt')">
+
+  <article metal:fill-slot="content" class="embedded-page-view content">
+    <h1>${context.title}</h1>
+    
+    <p class="lead" tal:condition="context.description">
+      ${context.description}
+    </p>
+    
+    <div tal:replace="api.render_template('kotti:templates/view/tags.pt')"></div>
+    
+    <div class="embedded-page-container ${context.css_class}"
+         tal:define="iframe_height context.iframe_height or 600;
+                     sandbox_value context.get_sandbox_value();
+                     allow_fullscreen context.allow_fullscreen">
+      
+      <iframe src="${context.embed_url}"
+              tal:attributes="height iframe_height;
+                              sandbox sandbox_value;
+                              allowfullscreen allow_fullscreen"
+              width="100%"
+              frameborder="0"
+              class="embedded-iframe"
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade">
+        
+        <div class="iframe-fallback" tal:condition="context.fallback_content">
+          <p class="alert alert-warning">
+            Your browser does not support iframes or the content is blocked.
+          </p>
+          <div tal:content="structure context.fallback_content | None"></div>
+        </div>
+        
+      </iframe>
+      
+    </div>
+    
+    <noscript>
+      <div class="iframe-noscript-fallback" tal:condition="context.fallback_content">
+        <p class="alert alert-warning">
+          JavaScript is required to view embedded content.
+        </p>
+        <div tal:content="structure context.fallback_content | None"></div>
+      </div>
+    </noscript>
+    
+  </article>
+
+  <style metal:fill-slot="head-more">
+    .embedded-page-container {
+      position: relative;
+      width: 100%;
+      margin: 1em 0;
+    }
+    .embedded-iframe {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .iframe-fallback,
+    .iframe-noscript-fallback {
+      padding: 1em;
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+  </style>
+
+</html>

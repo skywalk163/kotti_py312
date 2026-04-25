@@ -3,6 +3,8 @@ alembic>=1.12.0
 anyascii>=0.3.1
 Babel>=2.12.0
 bcrypt>=4.0.0
+# WARNING: Beaker has CVE-2013-7489 (pickle deserialization vulnerability)
+# Consider migrating to SignedCookieSessionFactory (but note ~4KB cookie size limit)
 Beaker>=1.11.0
 bleach>=5.0.0,<6
 bleach-allowlist>=1.0.3
@@ -47,6 +49,8 @@ polib>=1.1.1
 pycparser>=2.21
 pyparsing>=3.0.8
 pyramid>=1.10.8,<2
+# WARNING: pyramid_beaker uses Beaker which has CVE-2013-7489
+# Consider using SignedCookieSessionFactory (but note ~4KB cookie size limit)
 pyramid-beaker>=0.8
 pyramid-chameleon>=0.3
 pyramid-deform>=0.2

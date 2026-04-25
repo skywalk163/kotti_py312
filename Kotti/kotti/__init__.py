@@ -1,12 +1,13 @@
 import os.path
+import warnings
 
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.events import BeforeRender
+from pyramid.session import SignedCookieSessionFactory
 from pyramid.threadlocal import get_current_registry
 from pyramid.util import DottedNameResolver
-from pyramid_beaker import session_factory_from_settings
 from sqlalchemy import MetaData
 from sqlalchemy import engine_from_config
 from sqlalchemy.ext.declarative import declarative_base
@@ -47,7 +48,86 @@ def acl_factory(**settings):
     return ACLAuthorizationPolicy()
 
 
+def signed_cookie_session_factory(**settings):
+    """Create a signed cookie session factory using Pyramid's built-in.
+    
+    This is a secure alternative to pyramid_beaker which had security vulnerabilities
+    (CVE-2013-7489 - pickle deserialization vulnerability).
+    
+    **IMPORTANT**: This session factory stores session data in the client cookie.
+    Cookie size is limited to ~4KB. If you need to store large amounts of session
+    data, consider using pyramid_beaker with server-side storage, but be aware
+    of the security implications.
+    
+    Configuration options (can be set in INI file):
+        kotti.session.secret - Secret key for signing (required, defaults to kotti.secret)
+        kotti.session.cookie_name - Cookie name (default: 'kotti_session')
+        kotti.session.timeout - Session timeout in seconds (default: 3600)
+        kotti.session.reissue_time - Reissue cookie after N seconds (default: 120)
+        kotti.session.max_age - Max cookie age (default: None)
+        kotti.session.path - Cookie path (default: '/')
+        kotti.session.domain - Cookie domain (default: None)
+        kotti.session.secure - HTTPS only (default: False)
+        kotti.session.httponly - HTTP only flag (default: True)
+    """
+    secret = settings.get('kotti.session.secret', settings.get('kotti.secret', 'changeme'))
+    cookie_name = settings.get('kotti.session.cookie_name', 'kotti_session')
+    timeout = int(settings.get('kotti.session.timeout', 3600))
+    reissue_time = int(settings.get('kotti.session.reissue_time', 120))
+    max_age = settings.get('kotti.session.max_age')
+    if max_age:
+        max_age = int(max_age)
+    
+    return SignedCookieSessionFactory(
+        secret=secret,
+        cookie_name=cookie_name,
+        timeout=timeout,
+        reissue_time=reissue_time,
+        max_age=max_age,
+        path=settings.get('kotti.session.path', '/'),
+        domain=settings.get('kotti.session.domain'),
+        secure=settings.get('kotti.session.secure', 'false').lower() in TRUE_VALUES,
+        httponly=settings.get('kotti.session.httponly', 'true').lower() in TRUE_VALUES,
+    )
+
+
 def beaker_session_factory(**settings):
+    """Create a Beaker session factory (requires pyramid_beaker).
+    
+    **SECURITY WARNING**: Beaker uses pickle for serialization which can lead to
+    remote code execution vulnerabilities (CVE-2013-7489). Use with caution.
+    
+    Consider using 'kotti.signed_cookie_session_factory' instead for improved security,
+    but note that cookie-based sessions have a ~4KB size limit.
+    
+    To use this factory, install pyramid_beaker:
+        pip install pyramid_beaker
+    
+    Configuration options are passed through to Beaker. Common options:
+        session.type - Storage type: 'file', 'memory', 'dbm', 'ext:memcached'
+        session.data_dir - Directory for file-based storage
+        session.lock_dir - Directory for lock files
+        session.key - Cookie name
+        session.secret - Secret key for signing
+    """
+    try:
+        from pyramid_beaker import session_factory_from_settings
+    except ImportError:
+        raise ImportError(
+            "pyramid_beaker is required for beaker_session_factory. "
+            "Install it with: pip install pyramid_beaker\n"
+            "Alternatively, use 'kotti.signed_cookie_session_factory' for a secure "
+            "cookie-based session (note: ~4KB size limit)."
+        )
+    
+    warnings.warn(
+        "Beaker session factory uses pickle serialization which has known security "
+        "vulnerabilities (CVE-2013-7489). Consider using 'kotti.signed_cookie_session_factory' "
+        "instead. Note: cookie-based sessions have a ~4KB size limit.",
+        UserWarning,
+        stacklevel=2,
+    )
+    
     return session_factory_from_settings(settings)
 
 

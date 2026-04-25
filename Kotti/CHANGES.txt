@@ -1,5 +1,18 @@
 Change History
-==============
+=============
+
+3.0.2 - unreleased
+------------------
+
+- **Security improvement**: Added ``signed_cookie_session_factory`` as a secure
+  alternative to Beaker session factory. Beaker uses pickle serialization which
+  has known vulnerabilities (CVE-2013-7489).
+- **Note**: The default session factory remains ``beaker_session_factory`` for
+  backward compatibility because cookie-based sessions have a ~4KB size limit.
+  If your application doesn't store large data in sessions, consider switching
+  to ``kotti.signed_cookie_session_factory`` for improved security.
+- **Configuration**: To use the secure cookie session factory, set in your INI:
+  ``kotti.session_factory = kotti.signed_cookie_session_factory``
 
 3.0.1 - 2026-04-23
 ------------------
