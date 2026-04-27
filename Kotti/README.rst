@@ -26,7 +26,7 @@ Kotti2
     :target: https://github.com/skywalk163/kotti_py312/actions/workflows/mysql.yml
     :alt: MySQL Tests
 
-**Kotti2** is a fork of Kotti CMS with Python 3.12 and SQLAlchemy 2.0 support.
+**Kotti2** is a fork of Kotti CMS with Python 3.10-3.12 support.
 
 Kotti is a high-level, Pythonic web application framework based on Pyramid_ and SQLAlchemy_.
 It includes an extensible Content Management System called the Kotti CMS (see below).
@@ -55,7 +55,7 @@ Its **main features** are:
 - **User-friendliness**: editors can edit content where it appears;
   thus the edit interface is contextual and intuitive
 
-- **WYSIWYG editor**: includes a rich text editor
+- **WYSIWYG editor**: includes a rich text editor with HTML source code editing
 
 - **Responsive design**: Kotti builds on `Bootstrap`_, which
   looks good both on desktop and mobile
@@ -81,9 +81,17 @@ What's Different from Kotti
 
 Kotti2 is a fork that includes:
 
-- **Python 3.12 support**: Full compatibility with Python 3.12
-- **SQLAlchemy 2.0 support**: Updated to work with SQLAlchemy 2.0.49
-- **Test coverage**: 379/379 tests passing (100%)
+- **Python 3.10-3.12 support**: Full compatibility with modern Python versions
+- **EmbeddedPage content type**: Embed external pages via iframe
+- **CodeMirror integration**: HTML source code editing in TinyMCE
+- **Test coverage**: 404/404 tests passing (100%)
+
+Requirements
+============
+
+- Python 3.10 - 3.12
+- SQLAlchemy >= 1.4.36, < 2
+- SQLite / PostgreSQL / MySQL
 
 Security Advisory
 =================
@@ -156,6 +164,24 @@ Available Plugins
 
     pip install kotti2_image kotti2_tinymce kotti2_g4f
 
+New Content Types
+=================
+
+EmbeddedPage
+------------
+
+Embed external web pages via iframe::
+
+    from kotti.resources import EmbeddedPage
+
+    page = EmbeddedPage(
+        title="AI Dashboard",
+        embed_url="https://example.com/dashboard",
+        iframe_height=800,
+        allow_fullscreen=True,
+        sandbox_attrs="allow-scripts allow-same-origin",
+    )
+
 Support and Documentation
 =========================
 
@@ -164,6 +190,6 @@ Read the original `Kotti documentation <https://kotti.readthedocs.io/>`_ on `Rea
 Development
 ===========
 
-Kotti2 is actively maintained with Python 3.12 and SQLAlchemy 2.0 support.
+Kotti2 is actively maintained with Python 3.10-3.12 support.
 
 Contributions are welcome!

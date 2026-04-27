@@ -1,4 +1,4 @@
-# Kotti2 - Python 3.12 + SQLAlchemy 2.0
+# Kotti2 - Python 3.12 CMS
 
 [![SQLite Tests](https://github.com/skywalk163/kotti_py312/actions/workflows/sqlite.yml/badge.svg)](https://github.com/skywalk163/kotti_py312/actions/workflows/sqlite.yml)
 [![PostgreSQL Tests](https://github.com/skywalk163/kotti_py312/actions/workflows/postgres.yml/badge.svg)](https://github.com/skywalk163/kotti_py312/actions/workflows/postgres.yml)
@@ -7,7 +7,7 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/Kotti2.svg)](https://pypi.org/project/Kotti2/)
 [![License](https://img.shields.io/pypi/l/Kotti2.svg)](http://www.repoze.org/LICENSE.txt)
 
-**Kotti2** 是 Kotti CMS 的分支版本，完整支持 Python 3.12 和 SQLAlchemy 2.0。
+**Kotti2** 是 Kotti CMS 的分支版本，支持 Python 3.10-3.12。
 
 Kotti 是一个基于 Pyramid 和 SQLAlchemy 的高级 Pythonic Web 应用框架，包含一个可扩展的内容管理系统（CMS）。
 
@@ -32,7 +32,7 @@ kotti_py312/
 | 依赖 | 版本要求 |
 |------|---------|
 | Python | 3.10 - 3.12 |
-| SQLAlchemy | 2.0.49 |
+| SQLAlchemy | >= 1.4.36, < 2 |
 | 数据库 | SQLite / PostgreSQL / MySQL |
 
 ## 特性
@@ -40,7 +40,7 @@ kotti_py312/
 ### Kotti CMS 主要功能
 
 - **用户友好**: 编辑内容时所见即所得，界面直观
-- **富文本编辑器**: 内置 TinyMCE 编辑器
+- **富文本编辑器**: 内置 TinyMCE 编辑器，支持 HTML 源代码编辑
 - **响应式设计**: 基于 Bootstrap，适配桌面和移动端
 - **模板系统**: 几乎无需编程即可自定义外观
 - **插件系统**: 通过 INI 配置文件安装和配置插件
@@ -51,8 +51,8 @@ kotti_py312/
 
 - **EmbeddedPage 内容类型**: 支持通过 iframe 嵌入外部网页（如 AI 服务聚合页面）
 - **AI 聊天集成**: kotti_g4f 插件提供 GPT4Free AI 聊天功能
-- **Python 3.12 支持**: 完整兼容最新 Python 版本
-- **SQLAlchemy 2.0 支持**: 使用最新 ORM API
+- **Python 3.12 支持**: 完整兼容 Python 3.10-3.12
+- **CodeMirror 集成**: TinyMCE 编辑器支持 HTML 源代码编辑
 
 ## 安装
 
@@ -140,12 +140,12 @@ pserve development.ini
 
 ### 测试通过率
 
-| 项目 | PyPI 包名 | 版本 | 测试通过率 |
-|------|----------|------|-----------|
-| Kotti2 | Kotti2 | 3.0.1 | 404/404 (100%) |
-| kotti2_image | kotti2_image | 3.0.0 | 3/3 (100%) |
-| kotti2_tinymce | kotti2_tinymce | 3.0.0 | 6/6 (100%) |
-| kotti2_g4f | kotti2_g4f | 3.0.0 | 23/23 (100%) |
+| 项目 | PyPI 包名 | 测试通过率 |
+|------|----------|-----------|
+| Kotti2 | Kotti2 | 404/404 (100%) |
+| kotti2_image | kotti2_image | 3/3 (100%) |
+| kotti2_tinymce | kotti2_tinymce | 6/6 (100%) |
+| kotti2_g4f | kotti2_g4f | 23/23 (100%) |
 
 ### 运行测试
 
@@ -163,21 +163,11 @@ KOTTI_TEST_DB_STRING=mysql://user:pass@localhost/dbname pytest
 
 ## 主要变更 (相对于 Kotti 2.x)
 
-### SQLAlchemy 2.0 兼容性
-
-| 变更项 | 旧 API | 新 API |
-|--------|--------|--------|
-| 关系定义 | `relation()` | `relationship()` |
-| 多态查询 | `query(Node).with_polymorphic(Node)` | `query(with_polymorphic(Node, '*'))` |
-| 延迟加载 | `enable_eagerloads(False)` | `lazyload('*')` |
-| 字段选择 | `load_only("path", "type")` | `load_only(Node.path, Node.type)` |
-| 查询语法 | `select([col], where)` | `select(col).where(where)` |
-
 ### Python 3.12 兼容性
 
 - 移除 `cgi.FieldStorage` → 使用自定义 `kotti.compat.FieldStorage`
-- 移除 `pkg_resources` → 使用 `importlib.metadata`
 - 更新类型注解语法
+- 兼容 Python 3.10-3.12
 
 ### 新增内容类型
 
@@ -195,6 +185,16 @@ page = EmbeddedPage(
 )
 ```
 
+**字段说明：**
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| embed_url | String | 要嵌入的 URL |
+| iframe_height | Integer | iframe 高度（像素） |
+| allow_fullscreen | Boolean | 是否允许全屏 |
+| sandbox_attrs | String | iframe sandbox 属性 |
+| fallback_content | Text | iframe 不支持时的回退内容 |
+
 ## CI/CD
 
 本项目使用 GitHub Actions 进行持续集成：
@@ -209,22 +209,23 @@ page = EmbeddedPage(
 ## 参考链接
 
 - [Kotti 官方文档](https://kotti.readthedocs.io/)
-- [SQLAlchemy 2.0 迁移指南](https://docs.sqlalchemy.org/en/20/changelog/migration_20.html)
-- [Python 3.12 有什么新功能](https://docs.python.org/zh-cn/3.12/whatsnew/3.12.html)
 - [PyPI - Kotti2](https://pypi.org/project/Kotti2/)
 
 ## 版本历史
+
+- **3.0.2** - 2026-04-27
+  - 修复 CodeMirror HTML 源代码编辑器
+  - 添加数据库迁移脚本
+  - 更新文档
 
 - **3.0.1** - 2026-04-25
   - 新增 EmbeddedPage 内容类型（iframe 嵌入支持）
   - 新增单元测试（404 个测试用例）
   - 添加 CI/CD 工作流（SQLite/PostgreSQL/MySQL）
-  - 修复 `is_url_allowed()` 域名白名单检查
 
 - **3.0.0** - 2026-04-23
   - PyPI 包名改为 Kotti2、kotti2_image、kotti2_tinymce、kotti2_g4f
-  - 升级支持 Python 3.12
-  - 升级支持 SQLAlchemy 2.0.49
+  - 升级支持 Python 3.10-3.12
   - 新增 kotti2_g4f AI 聊天插件
 
 ## License

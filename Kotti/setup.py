@@ -8,9 +8,9 @@ version = '3.0.2'
 description = "A high-level, Pythonic web application framework based on " \
               "Pyramid and SQLAlchemy.  It includes an extensible Content " \
               "Management System called the Kotti CMS." \
-              "\n\nThis is a fork with Python 3.12 and SQLAlchemy 2.0 support."
-author = 'Kotti Developers'
-author_email = 'kotti@googlegroups.com'
+              "\n\nThis is a fork with Python 3.10-3.12 support."
+author = 'Kotti2 Developers'
+author_email = 'skywalk163@vip.qq.com'
 url = 'http://kotti.pylonsproject.org/'
 keywords = 'kotti web cms wcms pylons pyramid sqlalchemy bootstrap'
 license = "BSD-derived (http://www.repoze.org/LICENSE.txt)"
